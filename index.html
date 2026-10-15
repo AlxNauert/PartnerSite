@@ -25,6 +25,14 @@
       --male-color: #01cdfe;
       --female-color: #ff71ce;
       --neutral-color: #05ffa1;
+
+      /* Fluid layout tokens */
+      --page-max: 1800px;
+      --page-pad-x: clamp(1rem, 2.5vw, 3rem);
+      --page-pad-y: clamp(1.25rem, 2.5vw, 2.5rem);
+      --panel-min: 340px;
+      --panel-max: 420px;
+      --panel-ideal: 26vw;
     }
 
     [data-theme="light"] {
@@ -52,10 +60,14 @@
       font-family: 'Rajdhani', system-ui, -apple-system, sans-serif;
     }
 
+    html, body {
+      min-height: 100%;
+    }
+
     body {
       background-color: var(--bg);
       color: var(--text);
-      padding: 2rem 1rem;
+      padding: var(--page-pad-y) var(--page-pad-x);
       min-height: 100vh;
       transition: background-color 0.3s, color 0.3s;
       background-image: 
@@ -66,6 +78,7 @@
       overflow-x: hidden;
     }
 
+    /* CRT Scanline overlay */
     body::before {
       content: " ";
       display: block;
@@ -79,7 +92,8 @@
     }
 
     .container {
-      max-width: 1000px;
+      max-width: var(--page-max);
+      width: 100%;
       margin: 0 auto;
       position: relative;
       z-index: 10;
@@ -87,13 +101,13 @@
 
     header {
       text-align: center;
-      margin-bottom: 2.5rem;
+      margin-bottom: clamp(1.75rem, 3vw, 3rem);
       position: relative;
     }
 
     header h1 {
       font-family: 'Press Start 2P', monospace;
-      font-size: clamp(1.2rem, 4vw, 2.2rem);
+      font-size: clamp(1.2rem, 2.2vw + 0.4rem, 2.6rem);
       color: var(--primary);
       text-shadow: 2px 2px 0px var(--secondary), -2px -2px 0px #05ffa1;
       margin-bottom: 1rem;
@@ -103,7 +117,7 @@
 
     header p {
       color: var(--secondary);
-      font-size: 1.2rem;
+      font-size: clamp(1rem, 0.6vw + 0.9rem, 1.35rem);
       font-weight: 700;
       letter-spacing: 3px;
       text-transform: uppercase;
@@ -135,7 +149,7 @@
       border-color: var(--accent);
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 720px) {
       .theme-toggle-btn {
         position: static;
         margin: 0 auto 1rem;
@@ -143,22 +157,44 @@
       }
     }
 
+    /* ========== Layout ========== */
     .app-layout {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 1.5rem;
+      gap: clamp(1.25rem, 1.6vw, 1.75rem);
+      align-items: start;
     }
 
+    /* Two-column at tablet */
     @media (min-width: 768px) {
       .app-layout {
-        grid-template-columns: 360px 1fr;
+        grid-template-columns: minmax(var(--panel-min), var(--panel-ideal)) minmax(0, 1fr);
+      }
+    }
+
+    /* Give the input panel more room on very wide screens */
+    @media (min-width: 1400px) {
+      :root {
+        --panel-ideal: 24vw;
+        --panel-max: 480px;
+      }
+      .app-layout {
+        grid-template-columns: minmax(var(--panel-min), var(--panel-max)) minmax(0, 1fr);
+      }
+    }
+
+    /* Even wider — let the left panel keep growing a bit */
+    @media (min-width: 1800px) {
+      :root {
+        --page-max: 2000px;
+        --panel-max: 520px;
       }
     }
 
     .card {
       background: var(--card-bg);
       backdrop-filter: blur(8px);
-      padding: 1.5rem;
+      padding: clamp(1.1rem, 1.4vw, 1.75rem);
       border-radius: var(--radius);
       border: 2px solid var(--border);
       box-shadow: var(--glow), inset 0 0 15px rgba(185, 103, 255, 0.15);
@@ -371,7 +407,8 @@
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 0.5rem;
-      max-height: 320px;
+      /* Scale height with viewport */
+      max-height: clamp(260px, 42vh, 560px);
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -486,17 +523,19 @@
       box-shadow: 0 0 8px var(--danger);
     }
 
+    /* ===== Results Grid ===== */
     .groups-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 1rem;
+      /* Column width scales with viewport so wide screens get denser packs */
+      grid-template-columns: repeat(auto-fill, minmax(clamp(220px, 16vw, 300px), 1fr));
+      gap: clamp(0.85rem, 1vw, 1.25rem);
     }
 
     .group-card {
       background: var(--card-bg);
       border: 2px solid var(--secondary);
       border-radius: 8px;
-      padding: 1rem;
+      padding: clamp(0.85rem, 1vw, 1.15rem);
       box-shadow: 0 0 10px var(--secondary);
       transition: all 0.3s;
     }
@@ -528,7 +567,7 @@
       gap: 0.6rem;
       padding: 0.5rem 0.7rem;
       border-radius: 6px;
-      font-size: 1rem;
+      font-size: clamp(0.9rem, 0.15vw + 0.85rem, 1.05rem);
       font-weight: 700;
       background-color: var(--input-bg);
       border-left: 5px solid var(--student-color, transparent);
@@ -569,7 +608,7 @@
 
     .actions-bar h2 {
       font-family: 'Press Start 2P', monospace;
-      font-size: 1rem;
+      font-size: clamp(0.85rem, 0.3vw + 0.75rem, 1.05rem);
       color: var(--accent);
       text-shadow: 0 0 8px var(--accent);
     }
@@ -577,7 +616,7 @@
     .empty-state {
       text-align: center;
       color: var(--text-muted);
-      padding: 3rem 1rem;
+      padding: clamp(2rem, 5vh, 4rem) 1rem;
       font-size: 1.1rem;
     }
 
@@ -585,6 +624,33 @@
       height: 2px;
       background: linear-gradient(90deg, transparent, var(--border), transparent);
       margin: 1.25rem 0;
+    }
+
+    /* ===== Ultra-wide refinements ===== */
+    @media (min-width: 1600px) {
+      /* On very wide screens, break the left panel into a comfortable scroll column
+         and let the results breathe with an extra column */
+      .groups-grid {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      }
+
+      .student-manager {
+        max-height: clamp(300px, 50vh, 640px);
+      }
+    }
+
+    /* ===== Small phone tweaks ===== */
+    @media (max-width: 480px) {
+      header h1 {
+        letter-spacing: 0;
+      }
+      .row-gender {
+        min-width: 34px;
+        padding: 0.15rem 0.35rem;
+      }
+      .row-toggle {
+        min-width: 62px;
+      }
     }
   </style>
 </head>
@@ -920,14 +986,12 @@
         }
       });
 
-      // Live-update the preview as the user types a number or changes the mode
       document.getElementById('numberInput').addEventListener('input', updateGroupPreview);
       document.querySelectorAll('input[name="mode"]').forEach(radio => {
         radio.addEventListener('change', updateGroupPreview);
       });
       document.getElementById('balanceGenders').addEventListener('change', updateGroupPreview);
 
-      // Initial preview render
       updateGroupPreview();
     });
 
@@ -1284,7 +1348,6 @@
 
         const membersHtml = group.map(student => {
           const color = stringToColor(`${currentClass}:${student.toLowerCase()}`);
-          // Gender symbol is intentionally not rendered in the group output.
 
           return `
             <li class="student-badge" style="--student-color: ${color};">
