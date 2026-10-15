@@ -3,41 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Random Student Group Generator</title>
+  <title>A E S T H E T I C • Group Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #4f46e5;
-      --primary-hover: #4338ca;
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --text-muted: #64748b;
-      --border: #e2e8f0;
-      --input-bg: #ffffff;
-      --danger: #ef4444;
-      --danger-hover: #dc2626;
+      --primary: #ff71ce;
+      --secondary: #01cdfe;
+      --accent: #05ffa1;
+      --bg: #0d0221;
+      --card-bg: rgba(26, 16, 60, 0.75);
+      --text: #fffbfe;
+      --text-muted: #b9aed9;
+      --border: #b967ff;
+      --input-bg: rgba(13, 2, 33, 0.8);
+      --danger: #ff5277;
       --radius: 12px;
+      --grid-color: rgba(255, 113, 206, 0.15);
+      --glow: 0 0 12px rgba(255, 113, 206, 0.6);
     }
 
-    /* Dark Mode Theme Variables */
-    [data-theme="dark"] {
-      --primary: #6366f1;
-      --primary-hover: #4f46e5;
-      --bg: #0f172a;
-      --card-bg: #1e293b;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
-      --border: #334155;
-      --input-bg: #0f172a;
-      --danger: #f87171;
-      --danger-hover: #ef4444;
+    [data-theme="light"] {
+      --primary: #d9008f;
+      --secondary: #0077ff;
+      --accent: #00b874;
+      --bg: #f3ebf9;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --text: #2a0845;
+      --text-muted: #6b5284;
+      --border: #d9008f;
+      --input-bg: #ffffff;
+      --danger: #e60039;
+      --grid-color: rgba(217, 0, 143, 0.12);
+      --glow: 0 0 10px rgba(217, 0, 143, 0.3);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      font-family: 'Rajdhani', system-ui, -apple-system, sans-serif;
     }
 
     body {
@@ -46,50 +52,81 @@
       padding: 2rem 1rem;
       min-height: 100vh;
       transition: background-color 0.3s, color 0.3s;
+      background-image: 
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+      background-size: 30px 30px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Subtle CRT Scanline overlay */
+    body::before {
+      content: " ";
+      display: block;
+      position: fixed;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+      background-size: 100% 4px;
+      z-index: 999;
+      pointer-events: none;
+      opacity: 0.6;
     }
 
     .container {
       max-width: 1000px;
       margin: 0 auto;
+      position: relative;
+      z-index: 10;
     }
 
     header {
       text-align: center;
-      margin-bottom: 2rem;
+      margin-bottom: 2.5rem;
       position: relative;
     }
 
     header h1 {
-      font-size: 2.25rem;
-      font-weight: 800;
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(1.2rem, 4vw, 2.2rem);
       color: var(--primary);
-      margin-bottom: 0.5rem;
+      text-shadow: 2px 2px 0px var(--secondary), -2px -2px 0px #05ffa1;
+      margin-bottom: 1rem;
+      letter-spacing: -1px;
+      line-height: 1.4;
     }
 
     header p {
-      color: var(--text-muted);
+      color: var(--secondary);
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-shadow: var(--glow);
     }
 
     .theme-toggle-btn {
       position: absolute;
-      top: 0;
+      top: -10px;
       right: 0;
       background: var(--card-bg);
       color: var(--text);
-      border: 1px solid var(--border);
+      border: 2px solid var(--border);
       padding: 0.5rem 0.85rem;
       border-radius: 20px;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 700;
       font-size: 0.85rem;
       display: flex;
       align-items: center;
       gap: 0.4rem;
-      transition: background-color 0.2s, border-color 0.2s;
+      box-shadow: var(--glow);
+      transition: all 0.2s;
     }
 
     .theme-toggle-btn:hover {
-      border-color: var(--primary);
+      transform: scale(1.05);
+      border-color: var(--accent);
     }
 
     .app-layout {
@@ -106,10 +143,11 @@
 
     .card {
       background: var(--card-bg);
+      backdrop-filter: blur(8px);
       padding: 1.5rem;
       border-radius: var(--radius);
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-      border: 1px solid var(--border);
+      border: 2px solid var(--border);
+      box-shadow: var(--glow), inset 0 0 15px rgba(185, 103, 255, 0.15);
       transition: background-color 0.3s, border-color 0.3s;
     }
 
@@ -119,9 +157,12 @@
 
     label {
       display: block;
-      font-weight: 600;
+      font-weight: 700;
       margin-bottom: 0.5rem;
-      font-size: 0.9rem;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      color: var(--secondary);
+      text-transform: uppercase;
     }
 
     textarea, input, select {
@@ -129,11 +170,12 @@
       padding: 0.75rem;
       background-color: var(--input-bg);
       color: var(--text);
-      border: 1px solid var(--border);
+      border: 2px solid var(--border);
       border-radius: 6px;
-      font-size: 0.95rem;
+      font-size: 1rem;
+      font-weight: 600;
       outline: none;
-      transition: border-color 0.2s, background-color 0.3s, color 0.3s;
+      transition: all 0.2s;
     }
 
     textarea {
@@ -142,7 +184,8 @@
     }
 
     textarea:focus, input:focus, select:focus {
-      border-color: var(--primary);
+      border-color: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
     }
 
     .row-btn-group {
@@ -161,50 +204,60 @@
       display: flex;
       align-items: center;
       gap: 0.4rem;
-      font-weight: normal;
+      font-weight: 600;
       cursor: pointer;
+      color: var(--text);
     }
 
     .btn {
       width: 100%;
-      background-color: var(--primary);
-      color: white;
+      background: linear-gradient(135deg, var(--primary), #b967ff);
+      color: #ffffff;
       border: none;
       padding: 0.85rem;
       border-radius: 6px;
-      font-weight: 600;
-      font-size: 1rem;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
       cursor: pointer;
-      transition: background-color 0.2s;
+      box-shadow: 0 0 15px var(--primary);
+      transition: all 0.2s;
     }
 
     .btn:hover {
-      background-color: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px var(--primary);
     }
 
     .btn-secondary {
-      background-color: var(--card-bg);
+      background: transparent;
       color: var(--text);
-      border: 1px solid var(--border);
+      border: 2px solid var(--border);
+      box-shadow: none;
     }
 
     .btn-secondary:hover {
-      border-color: var(--primary);
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
     }
 
     .btn-danger {
       background-color: transparent;
       color: var(--danger);
-      border: 1px solid var(--border);
+      border: 2px solid var(--danger);
       padding: 0.75rem;
       border-radius: 6px;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 700;
+      transition: all 0.2s;
     }
 
     .btn-danger:hover {
-      background-color: rgba(239, 68, 68, 0.1);
-      border-color: var(--danger);
+      background-color: var(--danger);
+      color: #ffffff;
+      box-shadow: 0 0 12px var(--danger);
     }
 
     .groups-grid {
@@ -215,17 +268,23 @@
 
     .group-card {
       background: var(--card-bg);
-      border: 1px solid var(--border);
+      border: 2px solid var(--secondary);
       border-radius: 8px;
       padding: 1rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      transition: background-color 0.3s, border-color 0.3s;
+      box-shadow: 0 0 10px var(--secondary);
+      transition: all 0.3s;
+    }
+
+    .group-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 20px var(--secondary);
     }
 
     .group-card h3 {
-      font-size: 1.1rem;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.85rem;
       color: var(--primary);
-      border-bottom: 2px solid var(--bg);
+      border-bottom: 2px solid var(--border);
       padding-bottom: 0.5rem;
       margin-bottom: 0.75rem;
     }
@@ -234,28 +293,29 @@
       list-style-type: none;
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
+      gap: 0.5rem;
     }
 
     .student-badge {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.4rem 0.6rem;
+      gap: 0.6rem;
+      padding: 0.5rem 0.7rem;
       border-radius: 6px;
-      font-size: 0.95rem;
-      font-weight: 500;
+      font-size: 1rem;
+      font-weight: 700;
       background-color: var(--input-bg);
       border-left: 5px solid transparent;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      box-shadow: inset 0 0 5px rgba(255,255,255,0.05);
     }
 
     .student-color-dot {
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
       display: inline-block;
       flex-shrink: 0;
+      box-shadow: 0 0 6px currentColor;
     }
 
     .actions-bar {
@@ -265,15 +325,23 @@
       margin-bottom: 1rem;
     }
 
+    .actions-bar h2 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 1rem;
+      color: var(--accent);
+      text-shadow: 0 0 8px var(--accent);
+    }
+
     .empty-state {
       text-align: center;
       color: var(--text-muted);
       padding: 3rem 1rem;
+      font-size: 1.1rem;
     }
 
     .divider {
-      height: 1px;
-      background-color: var(--border);
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
       margin: 1.25rem 0;
     }
   </style>
@@ -283,10 +351,10 @@
   <div class="container">
     <header>
       <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeToggleBtn">
-        🌙 Dark Mode
+        🌴 Retrowave Mode
       </button>
-      <h1>🎲 Student Group Generator</h1>
-      <p>Quickly create randomized groups for your classroom or team</p>
+      <h1>R A N D O M • G R O U P S</h1>
+      <p>// A E S T H E T I C • R O S T E R • S H U F F L E R</p>
     </header>
 
     <div class="app-layout">
@@ -295,24 +363,24 @@
         
         <!-- Saved Classes Manager -->
         <div class="form-group">
-          <label for="classSelect">Saved Classes / Rosters:</label>
+          <label for="classSelect">Saved Rosters:</label>
           <select id="classSelect" onchange="loadClass()">
-            <option value="">-- Choose a Saved Class --</option>
+            <option value="">-- Select Class --</option>
           </select>
           <div class="row-btn-group" id="classActionButtons" style="display: none;">
-            <button class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem;" onclick="updateClass()">Save Changes</button>
-            <button class="btn-danger" style="font-size: 0.85rem; padding: 0.5rem;" onclick="deleteClass()">Delete Class</button>
+            <button class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem;" onclick="updateClass()">Update Roster</button>
+            <button class="btn-danger" style="font-size: 0.85rem; padding: 0.5rem;" onclick="deleteClass()">Delete</button>
           </div>
         </div>
 
         <div class="divider"></div>
 
         <div class="form-group">
-          <label for="studentList">Student Names (commas or newlines):</label>
-          <textarea id="studentList" placeholder="Alice, Bob, Charlie&#10;Diana, Evan, Fiona"></textarea>
+          <label for="studentList">Student Names:</label>
+          <textarea id="studentList" placeholder="Macintosh Plus, Blank Banshee, Vektroid&#10;Saint Pepsi, Windows 96"></textarea>
           
           <div class="row-btn-group">
-            <button class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem;" onclick="saveNewClass()">💾 Save as New Class</button>
+            <button class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem;" onclick="saveNewClass()">💾 Save Class Roster</button>
           </div>
         </div>
 
@@ -320,7 +388,7 @@
           <label>Grouping Mode:</label>
           <div class="radio-group">
             <label class="radio-label">
-              <input type="radio" name="mode" value="numGroups" checked onchange="toggleMode()"> Number of Groups
+              <input type="radio" name="mode" value="numGroups" checked onchange="toggleMode()"> Total Groups
             </label>
             <label class="radio-label">
               <input type="radio" name="mode" value="groupSize" onchange="toggleMode()"> Group Size
@@ -333,19 +401,19 @@
           <input type="number" id="numberInput" min="1" value="2">
         </div>
 
-        <button class="btn" onclick="generateGroups()">Generate Groups</button>
+        <button class="btn" onclick="generateGroups()">⚡ Generate Groups</button>
       </div>
 
       <!-- Results Panel -->
       <div>
         <div class="actions-bar" id="actionsBar" style="display: none;">
-          <h2 id="totalCount">Groups</h2>
-          <button class="btn btn-secondary" style="width: auto; margin-top: 0; padding: 0.6rem 1rem;" onclick="copyGroups()">📋 Copy to Clipboard</button>
+          <h2 id="totalCount">GROUPS</h2>
+          <button class="btn btn-secondary" style="width: auto; margin-top: 0; padding: 0.6rem 1rem;" onclick="copyGroups()">📋 Copy Results</button>
         </div>
 
         <div id="resultsContainer">
           <div class="card empty-state">
-            <p>Select a class or paste student names, then click <strong>Generate Groups</strong> to see results.</p>
+            <p>Load a roster or enter student names, then hit <strong>GENERATE GROUPS</strong>.</p>
           </div>
         </div>
       </div>
@@ -353,39 +421,36 @@
   </div>
 
   <script>
-    // --- Dark Mode Logic ---
+    // --- Theme Logic ---
     function initTheme() {
       const savedTheme = localStorage.getItem('theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      
-      if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-        document.documentElement.setAttribute('data-theme', 'dark');
+      if (savedTheme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
         updateThemeButton(true);
       } else {
-        document.documentElement.setAttribute('data-theme', 'light');
+        document.documentElement.setAttribute('data-theme', 'dark');
         updateThemeButton(false);
       }
     }
 
     function toggleTheme() {
       const currentTheme = document.documentElement.getAttribute('data-theme');
-      const isDark = currentTheme === 'dark';
-      const newTheme = isDark ? 'light' : 'dark';
+      const isLight = currentTheme === 'light';
+      const newTheme = isLight ? 'dark' : 'light';
 
       document.documentElement.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);
-      updateThemeButton(!isDark);
+      updateThemeButton(!isLight);
     }
 
-    function updateThemeButton(isDark) {
+    function updateThemeButton(isLight) {
       const btn = document.getElementById('themeToggleBtn');
-      btn.innerHTML = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
+      btn.innerHTML = isLight ? '🔮 Vaporwave Dark' : '🌴 Retrowave Light';
     }
 
     initTheme();
 
     // --- Helper Functions ---
-    // Parses student names separated by commas, newlines, or both
     function parseStudentNames(text) {
       return text
         .split(/[\n,]+/)
@@ -393,15 +458,14 @@
         .filter(s => s.length > 0);
     }
 
-    // Hash function to consistently convert string -> unique HSL color
+    // Hash function generating vibrant neon HSL colors per student
     function stringToColor(str) {
       let hash = 0;
       for (let i = 0; i < str.length; i++) {
         hash = str.charCodeAt(i) + ((hash << 5) - hash);
       }
-      // Use Golden Ratio distribution for distinct hues
       const hue = Math.abs(hash * 137.508) % 360;
-      return `hsl(${hue}, 70%, 50%)`;
+      return `hsl(${hue}, 100%, 65%)`;
     }
 
     // --- Saved Classes Management ---
@@ -415,7 +479,7 @@
       const select = document.getElementById('classSelect');
       const currentSelection = select.value;
 
-      select.innerHTML = '<option value="">-- Choose a Saved Class --</option>';
+      select.innerHTML = '<option value="">-- Select Class --</option>';
       
       Object.keys(classes).sort().forEach(className => {
         const option = document.createElement('option');
@@ -444,17 +508,17 @@
       const students = parseStudentNames(text);
 
       if (students.length === 0) {
-        alert('Please enter student names before saving a class.');
+        alert('Please enter student names before saving.');
         return;
       }
 
-      const className = prompt('Enter a name for this class roster (e.g., "Period 1 Science"):');
+      const className = prompt('Enter a title for this roster:');
       if (!className || !className.trim()) return;
 
       const trimmedName = className.trim();
       const classes = getSavedClasses();
 
-      if (classes[trimmedName] && !confirm(`"${trimmedName}" already exists. Overwrite it?`)) {
+      if (classes[trimmedName] && !confirm(`"${trimmedName}" already exists. Overwrite?`)) {
         return;
       }
 
@@ -464,7 +528,7 @@
       renderClassDropdown();
       document.getElementById('classSelect').value = trimmedName;
       toggleActionButtons();
-      alert(`Class "${trimmedName}" saved successfully!`);
+      alert(`Roster "${trimmedName}" saved!`);
     }
 
     function updateClass() {
@@ -480,7 +544,7 @@
       classes[className] = students;
       localStorage.setItem('classRosters', JSON.stringify(classes));
 
-      alert(`Updated roster for "${className}".`);
+      alert(`Updated "${className}".`);
     }
 
     function deleteClass() {
@@ -489,7 +553,7 @@
 
       if (!className) return;
 
-      if (confirm(`Are you sure you want to delete "${className}"?`)) {
+      if (confirm(`Delete roster "${className}"?`)) {
         const classes = getSavedClasses();
         delete classes[className];
         localStorage.setItem('classRosters', JSON.stringify(classes));
@@ -522,7 +586,6 @@
       }
     }
 
-    // Fisher-Yates Shuffle Algorithm
     function shuffle(array) {
       const arr = [...array];
       for (let i = arr.length - 1; i > 0; i--) {
@@ -577,21 +640,20 @@
       const currentClass = document.getElementById('classSelect').value || 'default';
 
       actionsBar.style.display = 'flex';
-      totalCount.textContent = `Generated ${groups.length} Group${groups.length > 1 ? 's' : ''}`;
+      totalCount.textContent = `// ${groups.length} GROUP${groups.length > 1 ? 'S' : ''} GENERATED`;
 
       let html = '<div class="groups-grid">';
       
       groups.forEach((group, index) => {
         html += `
           <div class="group-card">
-            <h3>Group ${index + 1}</h3>
+            <h3>GROUP 0${index + 1}</h3>
             <ul>
               ${group.map(student => {
-                // Unique color per student + class combination
                 const color = stringToColor(`${currentClass}:${student.toLowerCase()}`);
                 return `
-                  <li class="student-badge" style="border-left-color: ${color};">
-                    <span class="student-color-dot" style="background-color: ${color};"></span>
+                  <li class="student-badge" style="border-left-color: ${color}; box-shadow: -2px 0 8px${color};">
+                    <span class="student-color-dot" style="background-color: ${color}; color:${color};"></span>
                     <span>${escapeHtml(student)}</span>
                   </li>
                 `;
