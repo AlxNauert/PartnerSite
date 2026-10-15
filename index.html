@@ -293,6 +293,39 @@
       box-shadow: 0 0 12px var(--danger);
     }
 
+    /* ===== Group Preview ===== */
+    .group-preview {
+      margin-top: 0.85rem;
+      padding: 0.7rem 0.85rem;
+      background: var(--input-bg);
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-align: center;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      line-height: 1.5;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .group-preview.empty {
+      opacity: 0.75;
+      font-style: italic;
+      border-style: dotted;
+    }
+    .group-preview .preview-value {
+      color: var(--accent);
+      text-shadow: 0 0 6px var(--accent);
+      font-weight: 700;
+    }
+    .group-preview .preview-warn {
+      color: var(--danger);
+      font-weight: 700;
+    }
+    .group-preview .preview-icon {
+      margin-right: 0.35rem;
+    }
+
     /* ===== Student Roster Manager ===== */
     .student-manager-header {
       display: flex;
@@ -492,7 +525,6 @@
     .student-badge {
       display: flex;
       align-items: center;
-      justify-content: space-between;
       gap: 0.6rem;
       padding: 0.5rem 0.7rem;
       border-radius: 6px;
@@ -526,12 +558,6 @@
       box-shadow: 0 0 6px var(--student-color, currentColor);
     }
 
-    .gender-icon {
-      font-size: 0.85rem;
-      font-weight: bold;
-      flex-shrink: 0;
-    }
-
     .actions-bar {
       display: flex;
       justify-content: space-between;
@@ -560,65 +586,6 @@
       background: linear-gradient(90deg, transparent, var(--border), transparent);
       margin: 1.25rem 0;
     }
-
-    /* Google Classroom Styles */
-    .classroom-status {
-      font-size: 0.85rem;
-      font-weight: 700;
-      margin-top: 0.5rem;
-      padding: 0.4rem;
-      border-radius: 4px;
-      text-align: center;
-    }
-    .classroom-status.connected {
-      color: var(--accent);
-      background: rgba(5, 255, 161, 0.1);
-    }
-    .classroom-status.disconnected {
-      color: var(--text-muted);
-      background: rgba(185, 103, 255, 0.1);
-    }
-    .classroom-course-list {
-      margin-top: 0.75rem;
-      max-height: 200px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-    .classroom-course-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.5rem 0.75rem;
-      background: var(--input-bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-size: 0.9rem;
-      font-weight: 600;
-    }
-    .classroom-course-item:hover {
-      border-color: var(--accent);
-      background: rgba(5, 255, 161, 0.1);
-    }
-    .classroom-course-item.loading {
-      opacity: 0.6;
-      pointer-events: none;
-    }
-    .classroom-course-item .course-name {
-      flex: 1;
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .classroom-course-item .import-icon {
-      font-size: 1rem;
-      flex-shrink: 0;
-      margin-left: 0.5rem;
-    }
   </style>
 </head>
 <body>
@@ -636,20 +603,6 @@
       <!-- Input Panel -->
       <div class="card">
         
-        <!-- Google Classroom Import -->
-        <div class="form-group">
-          <label>Import from Google Classroom:</label>
-          <button class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem;" onclick="handleGoogleClassroomAuth()" id="googleClassroomBtn" type="button">
-            🔗 Connect to Google Classroom
-          </button>
-          <div id="classroomStatus" class="classroom-status disconnected">
-            Not connected
-          </div>
-          <div id="classroomCourseList" class="classroom-course-list" style="display: none;"></div>
-        </div>
-
-        <div class="divider"></div>
-
         <!-- Saved Classes Manager -->
         <div class="form-group">
           <label for="classSelect">Saved Rosters:</label>
@@ -719,6 +672,11 @@
         </div>
 
         <button class="btn" onclick="generateGroups()" type="button">⚡ Generate Groups</button>
+
+        <!-- Live preview of group distribution -->
+        <div id="groupPreview" class="group-preview empty">
+          Enter student names to see a preview.
+        </div>
       </div>
 
       <!-- Results Panel -->
@@ -737,303 +695,7 @@
     </div>
   </div>
 
-  <!-- Google API Client Library -->
-  <script src="https://apis.google.com/js/api.js" async defer></script>
-
   <script>
-    // ============================================================
-    // GOOGLE CLASSROOM CONFIGURATION
-    // ============================================================
-    // Replace with your own OAuth 2.0 Client ID from Google Cloud Console.
-    const GOOGLE_CLASSROOM_CLIENT_ID = 'YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com';
-
-    const CLASSROOM_SCOPES = [
-      'https://www.googleapis.com/auth/classroom.courses.readonly',
-      'https://www.googleapis.com/auth/classroom.rosters.readonly'
-    ].join(' ');
-
-    let tokenClient = null;
-    let accessToken = null;
-    let gapiInitialized = false;
-    let gapiReady = false;
-
-    // ============================================================
-    // GOOGLE CLASSROOM: INITIALIZATION
-    // ============================================================
-    function initializeGoogleClassroom() {
-      if (typeof gapi === 'undefined') {
-        console.warn('Google API client library not loaded yet.');
-        return;
-      }
-
-      gapi.load('client', async () => {
-        try {
-          await gapi.client.init({});
-          await gapi.client.load('classroom', 'v1');
-          gapiInitialized = true;
-          gapiReady = true;
-          console.log('Google Classroom API client initialized.');
-          updateClassroomButtonState();
-        } catch (err) {
-          console.error('Error initializing Google Classroom API:', err);
-        }
-      });
-    }
-
-    window.addEventListener('load', () => {
-      loadGISLibrary();
-      initializeGoogleClassroom();
-    });
-
-    function loadGISLibrary() {
-      const script = document.createElement('script');
-      script.src = 'https://accounts.google.com/gsi/client';
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        console.log('Google Identity Services library loaded.');
-        initializeTokenClient();
-      };
-      script.onerror = () => {
-        console.error('Failed to load Google Identity Services library.');
-      };
-      document.head.appendChild(script);
-    }
-
-    function initializeTokenClient() {
-      if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
-        console.warn('Google Identity Services not available yet.');
-        return;
-      }
-
-      tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: GOOGLE_CLASSROOM_CLIENT_ID,
-        scope: CLASSROOM_SCOPES,
-        callback: (tokenResponse) => {
-          if (tokenResponse && tokenResponse.access_token) {
-            accessToken = tokenResponse.access_token;
-            console.log('Access token obtained.');
-            updateClassroomStatus('connected', '✅ Connected to Google Classroom');
-            loadClassroomCourses();
-          } else {
-            console.error('Token response did not contain an access token:', tokenResponse);
-            updateClassroomStatus('disconnected', '❌ Authentication failed');
-          }
-        },
-        error_callback: (err) => {
-          console.error('OAuth error:', err);
-          updateClassroomStatus('disconnected', '❌ Authentication error');
-        }
-      });
-    }
-
-    // ============================================================
-    // GOOGLE CLASSROOM: AUTHENTICATION
-    // ============================================================
-    function handleGoogleClassroomAuth() {
-      if (accessToken) {
-        disconnectGoogleClassroom();
-        return;
-      }
-
-      if (!tokenClient) {
-        alert(
-          'Google Classroom integration is not ready yet.\n\n' +
-          'Please make sure you have:\n' +
-          '1. Created an OAuth 2.0 Client ID in the Google Cloud Console.\n' +
-          '2. Replaced the placeholder GOOGLE_CLASSROOM_CLIENT_ID in the code.\n' +
-          '3. Authorized your JavaScript origin.'
-        );
-        return;
-      }
-
-      if (GOOGLE_CLASSROOM_CLIENT_ID === 'YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com') {
-        alert(
-          'Please configure your Google OAuth 2.0 Client ID.\n\n' +
-          'Open the source code and replace:\n' +
-          'const GOOGLE_CLASSROOM_CLIENT_ID = \'YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com\';\n\n' +
-          'with your actual Client ID from the Google Cloud Console.'
-        );
-        return;
-      }
-
-      tokenClient.requestAccessToken({ prompt: 'consent' });
-    }
-
-    function disconnectGoogleClassroom() {
-      if (accessToken && typeof google !== 'undefined' && google.accounts && google.accounts.oauth2) {
-        google.accounts.oauth2.revoke(accessToken, () => {
-          console.log('Token revoked.');
-        });
-      }
-      accessToken = null;
-      updateClassroomStatus('disconnected', 'Not connected');
-      document.getElementById('classroomCourseList').style.display = 'none';
-      document.getElementById('classroomCourseList').innerHTML = '';
-      updateClassroomButtonState();
-    }
-
-    function updateClassroomStatus(cssClass, text) {
-      const statusEl = document.getElementById('classroomStatus');
-      statusEl.className = 'classroom-status ' + cssClass;
-      statusEl.textContent = text;
-      updateClassroomButtonState();
-    }
-
-    function updateClassroomButtonState() {
-      const btn = document.getElementById('googleClassroomBtn');
-      if (accessToken) {
-        btn.textContent = '🔌 Disconnect from Google Classroom';
-      } else {
-        btn.textContent = '🔗 Connect to Google Classroom';
-      }
-    }
-
-    // ============================================================
-    // GOOGLE CLASSROOM: FETCH COURSES
-    // ============================================================
-    async function loadClassroomCourses() {
-      const courseListEl = document.getElementById('classroomCourseList');
-      courseListEl.style.display = 'block';
-      courseListEl.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:0.5rem;">Loading courses…</div>';
-
-      try {
-        if (!gapiReady) {
-          throw new Error('Google API client is not ready. Please try again in a moment.');
-        }
-
-        const response = await gapi.client.classroom.courses.list({
-          courseState: 'ACTIVE',
-          pageSize: 50,
-          teacherId: 'me'
-        });
-
-        const courses = response.result.courses || [];
-
-        if (courses.length === 0) {
-          courseListEl.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:0.5rem;">No active courses found.</div>';
-          return;
-        }
-
-        courseListEl.innerHTML = courses.map(course => `
-          <div class="classroom-course-item" data-course-id="${escapeHtml(course.id)}" onclick="importClassroomCourse(this, '${escapeHtml(course.id)}', '${escapeHtml(course.name)}')">
-            <span class="course-name" title="${escapeHtml(course.name)}">${escapeHtml(course.name)}</span>
-            <span class="import-icon">📥</span>
-          </div>
-        `).join('');
-
-      } catch (err) {
-        console.error('Error fetching courses:', err);
-        courseListEl.innerHTML = `<div style="color:var(--danger); font-size:0.85rem; text-align:center; padding:0.5rem;">Error: ${escapeHtml(err.message || 'Failed to load courses')}</div>`;
-      }
-    }
-
-    // ============================================================
-    // GOOGLE CLASSROOM: IMPORT STUDENTS FROM A COURSE
-    // ============================================================
-    async function importClassroomCourse(el, courseId, courseName) {
-      if (!accessToken) {
-        alert('Please connect to Google Classroom first.');
-        return;
-      }
-
-      el.classList.add('loading');
-      const originalContent = el.innerHTML;
-      el.innerHTML = `<span class="course-name">Importing "${escapeHtml(courseName)}"…</span><span class="import-icon">⏳</span>`;
-
-      try {
-        if (!gapiReady) {
-          throw new Error('Google API client is not ready.');
-        }
-
-        const response = await gapi.client.classroom.courses.students.list({
-          courseId: courseId,
-          pageSize: 100
-        });
-
-        const students = response.result.students || [];
-
-        if (students.length === 0) {
-          el.classList.remove('loading');
-          el.innerHTML = originalContent;
-          alert(`No students found in "${courseName}".`);
-          return;
-        }
-
-        const studentNames = students
-          .map(s => s.profile && s.profile.name && s.profile.name.fullName)
-          .filter(name => name && name.trim().length > 0);
-
-        if (studentNames.length === 0) {
-          el.classList.remove('loading');
-          el.innerHTML = originalContent;
-          alert(`No student names could be extracted from "${courseName}".`);
-          return;
-        }
-
-        const textarea = document.getElementById('studentList');
-        const existing = textarea.value.trim();
-
-        if (existing.length > 0) {
-          const existingNames = parseStudentNames(existing);
-          if (!confirm(`This will replace the current roster (${existingNames.length} student${existingNames.length !== 1 ? 's' : ''}) with ${studentNames.length} student${studentNames.length !== 1 ? 's' : ''} from "${courseName}".\n\nContinue?`)) {
-            el.classList.remove('loading');
-            el.innerHTML = originalContent;
-            return;
-          }
-        }
-
-        textarea.value = studentNames.join(', ');
-
-        // Fresh import — reset exclusions and let gender map rebuild
-        excludedStudents = new Set();
-        studentGenderMap = {};
-        syncGenderMap(studentNames);
-
-        // Auto-open the roster manager so the user can verify colors / gender / inclusion
-        openStudentManager();
-
-        el.classList.remove('loading');
-        el.innerHTML = `<span class="course-name">✅ ${escapeHtml(courseName)}</span><span class="import-icon">✔️</span>`;
-
-        const className = courseName.trim();
-        if (className) {
-          const classes = getSavedClasses();
-          classes[className] = {
-            students: studentNames,
-            genders: studentGenderMap,
-            excluded: []
-          };
-          localStorage.setItem('classRosters', JSON.stringify(classes));
-          renderClassDropdown();
-          document.getElementById('classSelect').value = className;
-          toggleActionButtons();
-          console.log(`Auto-saved roster: "${className}"`);
-        }
-
-        updateClassroomStatus('connected', `✅ Imported "${courseName}" (${studentNames.length} students)`);
-
-        setTimeout(() => {
-          if (el.classList.contains('loading')) return;
-          el.innerHTML = originalContent;
-        }, 3000);
-
-      } catch (err) {
-        console.error('Error importing course students:', err);
-        el.classList.remove('loading');
-        el.innerHTML = originalContent;
-
-        let errorMsg = err.message || 'Failed to import students.';
-        if (err.status === 403) {
-          errorMsg = 'Permission denied. Make sure you have access to this course and that the Classroom API is enabled.';
-        } else if (err.status === 404) {
-          errorMsg = 'Course not found. It may have been deleted.';
-        }
-
-        alert(`Error importing "${courseName}":\n\n${errorMsg}`);
-      }
-    }
-
     // ============================================================
     // BUILT-IN NAME DICTIONARIES FOR GENDER DETECTION
     // ============================================================
@@ -1099,6 +761,7 @@
       excludedStudents = newExcluded;
 
       renderStudentManager();
+      updateGroupPreview();
     }
 
     let inputDebounceTimer = null;
@@ -1111,6 +774,88 @@
     }
 
     // ============================================================
+    // GROUP PREVIEW (updates live under the Generate button)
+    // ============================================================
+    function computeGroupPlan(students, mode, targetVal) {
+      // Returns { numGroups, minSize, maxSize } or null if inputs are invalid
+      if (students.length === 0) return null;
+      if (!targetVal || targetVal <= 0) return null;
+
+      let numGroups;
+      if (mode === 'groupSize') {
+        numGroups = Math.max(1, Math.ceil(students.length / targetVal));
+      } else {
+        numGroups = Math.min(targetVal, students.length);
+      }
+
+      const avg = students.length / numGroups;
+      return {
+        numGroups,
+        minSize: Math.floor(avg),
+        maxSize: Math.ceil(avg)
+      };
+    }
+
+    function updateGroupPreview() {
+      const previewEl = document.getElementById('groupPreview');
+      if (!previewEl) return;
+
+      const allStudents = parseStudentNames(document.getElementById('studentList').value);
+
+      if (allStudents.length === 0) {
+        previewEl.className = 'group-preview empty';
+        previewEl.textContent = 'Enter student names to see a preview.';
+        return;
+      }
+
+      const included = allStudents.filter(s => !excludedStudents.has(s));
+      const excludedCount = allStudents.length - included.length;
+
+      if (included.length === 0) {
+        previewEl.className = 'group-preview empty';
+        previewEl.innerHTML = '<span class="preview-warn">All students are excluded — nothing to generate.</span>';
+        return;
+      }
+
+      const mode = document.querySelector('input[name="mode"]:checked').value;
+      const targetVal = parseInt(document.getElementById('numberInput').value, 10);
+
+      if (!targetVal || targetVal <= 0) {
+        previewEl.className = 'group-preview empty';
+        previewEl.textContent = 'Enter a valid number to see a preview.';
+        return;
+      }
+
+      const plan = computeGroupPlan(included, mode, targetVal);
+      if (!plan) {
+        previewEl.className = 'group-preview empty';
+        previewEl.textContent = 'Enter a valid number to see a preview.';
+        return;
+      }
+
+      const { numGroups, minSize, maxSize } = plan;
+
+      let sizeText;
+      if (minSize === maxSize) {
+        sizeText = `${minSize} student${minSize !== 1 ? 's' : ''} each`;
+      } else {
+        sizeText = `${minSize}–${maxSize} students each`;
+      }
+
+      let html = `<span class="preview-icon">📊</span>`;
+      html += `<span class="preview-value">${numGroups}</span> group${numGroups !== 1 ? 's' : ''}`;
+      html += ` · `;
+      html += `<span class="preview-value">${sizeText}</span>`;
+
+      if (excludedCount > 0) {
+        html += ` <span class="preview-warn">(${excludedCount} excluded)</span>`;
+      }
+
+      previewEl.className = 'group-preview';
+      previewEl.innerHTML = html;
+    }
+
+    // ============================================================
     // STUDENT ROSTER MANAGER (COLOR / GENDER / INCLUSION)
     // ============================================================
     function toggleStudentManager() {
@@ -1118,11 +863,6 @@
       const isHidden = panel.style.display === 'none';
       panel.style.display = isHidden ? 'block' : 'none';
       if (isHidden) renderStudentManager();
-    }
-
-    function openStudentManager() {
-      document.getElementById('studentManagerPanel').style.display = 'block';
-      renderStudentManager();
     }
 
     function renderStudentManager() {
@@ -1145,7 +885,6 @@
       container.innerHTML = students.map((student, index) => {
         const gender = studentGenderMap[student] || 'unspecified';
         const symbol = gender === 'male' ? '♂' : gender === 'female' ? '♀' : '⚧';
-        // Same derivation as the group output — what you see here is what will render.
         const color = stringToColor(`${currentClass}:${student.toLowerCase()}`);
         const isExcluded = excludedStudents.has(student);
 
@@ -1180,6 +919,16 @@
           toggleInclusionByIndex(index);
         }
       });
+
+      // Live-update the preview as the user types a number or changes the mode
+      document.getElementById('numberInput').addEventListener('input', updateGroupPreview);
+      document.querySelectorAll('input[name="mode"]').forEach(radio => {
+        radio.addEventListener('change', updateGroupPreview);
+      });
+      document.getElementById('balanceGenders').addEventListener('change', updateGroupPreview);
+
+      // Initial preview render
+      updateGroupPreview();
     });
 
     function cycleGenderByIndex(index) {
@@ -1204,17 +953,20 @@
         excludedStudents.add(student);
       }
       renderStudentManager();
+      updateGroupPreview();
     }
 
     function includeAllStudents() {
       excludedStudents.clear();
       renderStudentManager();
+      updateGroupPreview();
     }
 
     function excludeAllStudents() {
       const students = parseStudentNames(document.getElementById('studentList').value);
       excludedStudents = new Set(students);
       renderStudentManager();
+      updateGroupPreview();
     }
 
     // ============================================================
@@ -1330,11 +1082,11 @@
           syncGenderMap(students);
         }
       } else {
-        // Deselected the class — clear exclusions so we start fresh
         excludedStudents = new Set();
       }
       toggleActionButtons();
       renderStudentManager();
+      updateGroupPreview();
     }
 
     function saveNewClass() {
@@ -1405,6 +1157,7 @@
         excludedStudents = new Set();
         renderClassDropdown();
         renderStudentManager();
+        updateGroupPreview();
 
         document.getElementById('resultsContainer').innerHTML =
           '<div class="card empty-state"><p>Load a roster or enter student names, then hit <strong>GENERATE GROUPS</strong>.</p></div>';
@@ -1435,6 +1188,7 @@
         label.textContent = 'Students per Group:';
         input.value = 3;
       }
+      updateGroupPreview();
     }
 
     function shuffle(array) {
@@ -1454,10 +1208,8 @@
         return;
       }
 
-      // Keep gender/exclusion state fresh with current textarea contents
       syncGenderMap(allStudents);
 
-      // Filter out excluded students
       const students = allStudents.filter(s => !excludedStudents.has(s));
       const excludedCount = allStudents.length - students.length;
 
@@ -1532,11 +1284,7 @@
 
         const membersHtml = group.map(student => {
           const color = stringToColor(`${currentClass}:${student.toLowerCase()}`);
-          const gender = studentGenderMap[student] || 'unspecified';
-          const icon = gender === 'male' ? '♂' : gender === 'female' ? '♀' : '⚧';
-          const colorVar = gender === 'male' ? 'male-color'
-                        : gender === 'female' ? 'female-color'
-                        : 'neutral-color';
+          // Gender symbol is intentionally not rendered in the group output.
 
           return `
             <li class="student-badge" style="--student-color: ${color};">
@@ -1544,9 +1292,6 @@
                 <span class="student-color-dot"></span>
                 <span>${escapeHtml(student)}</span>
               </div>
-              <span class="gender-icon" style="color: var(--${colorVar});">
-                ${icon}
-              </span>
             </li>
           `;
         }).join('');
