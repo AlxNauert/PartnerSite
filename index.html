@@ -209,7 +209,6 @@
       margin-top: 0.5rem;
     }
 
-    /* FIX: prevent width:100% buttons from squashing siblings in flex rows */
     .row-btn-group .btn,
     .row-btn-group .btn-danger {
       width: auto;
@@ -452,6 +451,65 @@
       background: linear-gradient(90deg, transparent, var(--border), transparent);
       margin: 1.25rem 0;
     }
+
+    /* Google Classroom Styles */
+    .classroom-status {
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-top: 0.5rem;
+      padding: 0.4rem;
+      border-radius: 4px;
+      text-align: center;
+    }
+    .classroom-status.connected {
+      color: var(--accent);
+      background: rgba(5, 255, 161, 0.1);
+    }
+    .classroom-status.disconnected {
+      color: var(--text-muted);
+      background: rgba(185, 103, 255, 0.1);
+    }
+    .classroom-course-list {
+      margin-top: 0.75rem;
+      max-height: 200px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .classroom-course-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .classroom-course-item:hover {
+      border-color: var(--accent);
+      background: rgba(5, 255, 161, 0.1);
+    }
+    .classroom-course-item.loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .classroom-course-item .course-name {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .classroom-course-item .import-icon {
+      font-size: 1rem;
+      flex-shrink: 0;
+      margin-left: 0.5rem;
+    }
   </style>
 </head>
 <body>
@@ -469,6 +527,20 @@
       <!-- Input Panel -->
       <div class="card">
         
+        <!-- Google Classroom Import -->
+        <div class="form-group">
+          <label>Import from Google Classroom:</label>
+          <button class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem;" onclick="handleGoogleClassroomAuth()" id="googleClassroomBtn" type="button">
+            🔗 Connect to Google Classroom
+          </button>
+          <div id="classroomStatus" class="classroom-status disconnected">
+            Not connected
+          </div>
+          <div id="classroomCourseList" class="classroom-course-list" style="display: none;"></div>
+        </div>
+
+        <div class="divider"></div>
+
         <!-- Saved Classes Manager -->
         <div class="form-group">
           <label for="classSelect">Saved Rosters:</label>
@@ -549,8 +621,325 @@
     </div>
   </div>
 
+  <!-- Google API Client Library -->
+  <script src="https://apis.google.com/js/api.js" async defer></script>
+
   <script>
-    // --- Built-In Name Dictionaries for Gender Detection ---
+    // ============================================================
+    // GOOGLE CLASSROOM CONFIGURATION
+    // ============================================================
+    // IMPORTANT: Replace with your own OAuth 2.0 Client ID
+    // from the Google Cloud Console.
+    // See setup instructions below the code.
+    // ============================================================
+    const GOOGLE_CLASSROOM_CLIENT_ID = 'YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com';
+
+    // Scopes: read-only access to courses and rosters
+    const CLASSROOM_SCOPES = [
+      'https://www.googleapis.com/auth/classroom.courses.readonly',
+      'https://www.googleapis.com/auth/classroom.rosters.readonly'
+    ].join(' ');
+
+    // --- Google Classroom State ---
+    let tokenClient = null;
+    let accessToken = null;
+    let gapiInitialized = false;
+    let gapiReady = false;
+
+    // ============================================================
+    // GOOGLE CLASSROOM: INITIALIZATION
+    // ============================================================
+    function initializeGoogleClassroom() {
+      if (typeof gapi === 'undefined') {
+        console.warn('Google API client library not loaded yet.');
+        return;
+      }
+
+      gapi.load('client', async () => {
+        try {
+          await gapi.client.init({
+            // No API key needed for OAuth-only requests
+          });
+          await gapi.client.load('classroom', 'v1');
+          gapiInitialized = true;
+          gapiReady = true;
+          console.log('Google Classroom API client initialized.');
+          updateClassroomButtonState();
+        } catch (err) {
+          console.error('Error initializing Google Classroom API:', err);
+        }
+      });
+    }
+
+    // Wait for the Google API script to load
+    window.addEventListener('load', () => {
+      // The GIS (Google Identity Services) script is loaded separately
+      // via the <script> tag with the Google Identity Services library.
+      // We load it dynamically to keep the integration self-contained.
+      loadGISLibrary();
+      initializeGoogleClassroom();
+    });
+
+    function loadGISLibrary() {
+      // Google Identity Services (GIS) library for OAuth 2.0 token flow
+      const script = document.createElement('script');
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        console.log('Google Identity Services library loaded.');
+        initializeTokenClient();
+      };
+      script.onerror = () => {
+        console.error('Failed to load Google Identity Services library.');
+      };
+      document.head.appendChild(script);
+    }
+
+    function initializeTokenClient() {
+      if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
+        console.warn('Google Identity Services not available yet.');
+        return;
+      }
+
+      tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLASSROOM_CLIENT_ID,
+        scope: CLASSROOM_SCOPES,
+        callback: (tokenResponse) => {
+          if (tokenResponse && tokenResponse.access_token) {
+            accessToken = tokenResponse.access_token;
+            console.log('Access token obtained.');
+            updateClassroomStatus('connected', '✅ Connected to Google Classroom');
+            loadClassroomCourses();
+          } else {
+            console.error('Token response did not contain an access token:', tokenResponse);
+            updateClassroomStatus('disconnected', '❌ Authentication failed');
+          }
+        },
+        error_callback: (err) => {
+          console.error('OAuth error:', err);
+          updateClassroomStatus('disconnected', '❌ Authentication error');
+        }
+      });
+    }
+
+    // ============================================================
+    // GOOGLE CLASSROOM: AUTHENTICATION
+    // ============================================================
+    function handleGoogleClassroomAuth() {
+      // If already authenticated, disconnect
+      if (accessToken) {
+        disconnectGoogleClassroom();
+        return;
+      }
+
+      if (!tokenClient) {
+        alert(
+          'Google Classroom integration is not ready yet.\n\n' +
+          'If this is the first time using the app, please make sure you have:\n' +
+          '1. Created an OAuth 2.0 Client ID in the Google Cloud Console.\n' +
+          '2. Replaced the placeholder GOOGLE_CLASSROOM_CLIENT_ID in the code.\n' +
+          '3. Authorized your JavaScript origin.'
+        );
+        return;
+      }
+
+      if (GOOGLE_CLASSROOM_CLIENT_ID === 'YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com') {
+        alert(
+          'Please configure your Google OAuth 2.0 Client ID.\n\n' +
+          'Open the source code and replace:\n' +
+          'const GOOGLE_CLASSROOM_CLIENT_ID = \'YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com\';\n\n' +
+          'with your actual Client ID from the Google Cloud Console.\n' +
+          'See the setup guide for detailed instructions.'
+        );
+        return;
+      }
+
+      // Request an access token (may show consent screen on first use)
+      tokenClient.requestAccessToken({ prompt: 'consent' });
+    }
+
+    function disconnectGoogleClassroom() {
+      // Revoke the token if possible
+      if (accessToken && typeof google !== 'undefined' && google.accounts && google.accounts.oauth2) {
+        google.accounts.oauth2.revoke(accessToken, () => {
+          console.log('Token revoked.');
+        });
+      }
+      accessToken = null;
+      updateClassroomStatus('disconnected', 'Not connected');
+      document.getElementById('classroomCourseList').style.display = 'none';
+      document.getElementById('classroomCourseList').innerHTML = '';
+      updateClassroomButtonState();
+    }
+
+    function updateClassroomStatus(cssClass, text) {
+      const statusEl = document.getElementById('classroomStatus');
+      statusEl.className = 'classroom-status ' + cssClass;
+      statusEl.textContent = text;
+      updateClassroomButtonState();
+    }
+
+    function updateClassroomButtonState() {
+      const btn = document.getElementById('googleClassroomBtn');
+      if (accessToken) {
+        btn.textContent = '🔌 Disconnect from Google Classroom';
+      } else {
+        btn.textContent = '🔗 Connect to Google Classroom';
+      }
+    }
+
+    // ============================================================
+    // GOOGLE CLASSROOM: FETCH COURSES
+    // ============================================================
+    async function loadClassroomCourses() {
+      const courseListEl = document.getElementById('classroomCourseList');
+      courseListEl.style.display = 'block';
+      courseListEl.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:0.5rem;">Loading courses…</div>';
+
+      try {
+        if (!gapiReady) {
+          throw new Error('Google API client is not ready. Please try again in a moment.');
+        }
+
+        // List active courses where the user is a teacher
+        const response = await gapi.client.classroom.courses.list({
+          courseState: 'ACTIVE',
+          pageSize: 50,
+          teacherId: 'me'
+        });
+
+        const courses = response.result.courses || [];
+
+        if (courses.length === 0) {
+          courseListEl.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:0.5rem;">No active courses found.</div>';
+          return;
+        }
+
+        // Render course list
+        courseListEl.innerHTML = courses.map(course => `
+          <div class="classroom-course-item" data-course-id="${escapeHtml(course.id)}" onclick="importClassroomCourse(this, '${escapeHtml(course.id)}', '${escapeHtml(course.name)}')">
+            <span class="course-name" title="${escapeHtml(course.name)}">${escapeHtml(course.name)}</span>
+            <span class="import-icon">📥</span>
+          </div>
+        `).join('');
+
+      } catch (err) {
+        console.error('Error fetching courses:', err);
+        courseListEl.innerHTML = `<div style="color:var(--danger); font-size:0.85rem; text-align:center; padding:0.5rem;">Error: ${escapeHtml(err.message || 'Failed to load courses')}</div>`;
+      }
+    }
+
+    // ============================================================
+    // GOOGLE CLASSROOM: IMPORT STUDENTS FROM A COURSE
+    // ============================================================
+    async function importClassroomCourse(el, courseId, courseName) {
+      if (!accessToken) {
+        alert('Please connect to Google Classroom first.');
+        return;
+      }
+
+      // Visual feedback
+      el.classList.add('loading');
+      const originalContent = el.innerHTML;
+      el.innerHTML = `<span class="course-name">Importing "${escapeHtml(courseName)}"…</span><span class="import-icon">⏳</span>`;
+
+      try {
+        if (!gapiReady) {
+          throw new Error('Google API client is not ready.');
+        }
+
+        const response = await gapi.client.classroom.courses.students.list({
+          courseId: courseId,
+          pageSize: 100
+        });
+
+        const students = response.result.students || [];
+
+        if (students.length === 0) {
+          el.classList.remove('loading');
+          el.innerHTML = originalContent;
+          alert(`No students found in "${courseName}".`);
+          return;
+        }
+
+        // Extract full names (profile.name.fullName)
+        const studentNames = students
+          .map(s => s.profile && s.profile.name && s.profile.name.fullName)
+          .filter(name => name && name.trim().length > 0);
+
+        if (studentNames.length === 0) {
+          el.classList.remove('loading');
+          el.innerHTML = originalContent;
+          alert(`No student names could be extracted from "${courseName}".`);
+          return;
+        }
+
+        // Populate the textarea with the imported names
+        const textarea = document.getElementById('studentList');
+        const existing = textarea.value.trim();
+
+        // If there's existing content, confirm before replacing
+        if (existing.length > 0) {
+          const existingNames = parseStudentNames(existing);
+          if (!confirm(`This will replace the current roster (${existingNames.length} student${existingNames.length !== 1 ? 's' : ''}) with ${studentNames.length} student${studentNames.length !== 1 ? 's' : ''} from "${courseName}".\n\nContinue?`)) {
+            el.classList.remove('loading');
+            el.innerHTML = originalContent;
+            return;
+          }
+        }
+
+        textarea.value = studentNames.join(', ');
+
+        // Sync gender map with the new students
+        syncGenderMap(studentNames);
+
+        // Update UI
+        el.classList.remove('loading');
+        el.innerHTML = `<span class="course-name">✅ ${escapeHtml(courseName)}</span><span class="import-icon">✔️</span>`;
+
+        // Auto-save as a named roster
+        const className = courseName.trim();
+        if (className) {
+          const classes = getSavedClasses();
+          classes[className] = {
+            students: studentNames,
+            genders: studentGenderMap
+          };
+          localStorage.setItem('classRosters', JSON.stringify(classes));
+          renderClassDropdown();
+          document.getElementById('classSelect').value = className;
+          toggleActionButtons();
+          console.log(`Auto-saved roster: "${className}"`);
+        }
+
+        updateClassroomStatus('connected', `✅ Imported "${courseName}" (${studentNames.length} students)`);
+
+        // Reset the course item after a moment
+        setTimeout(() => {
+          if (el.classList.contains('loading')) return;
+          el.innerHTML = originalContent;
+        }, 3000);
+
+      } catch (err) {
+        console.error('Error importing course students:', err);
+        el.classList.remove('loading');
+        el.innerHTML = originalContent;
+
+        let errorMsg = err.message || 'Failed to import students.';
+        if (err.status === 403) {
+          errorMsg = 'Permission denied. Make sure you have access to this course and that the Classroom API is enabled.';
+        } else if (err.status === 404) {
+          errorMsg = 'Course not found. It may have been deleted.';
+        }
+
+        alert(`Error importing "${courseName}":\n\n${errorMsg}`);
+      }
+    }
+
+    // ============================================================
+    // BUILT-IN NAME DICTIONARIES FOR GENDER DETECTION
+    // ============================================================
     const MALE_NAMES = new Set([
       "liam", "noah", "oliver", "james", "elijah", "william", "henry", "lucas", "benjamin", "theodore",
       "mateo", "levi", "sebastian", "daniel", "jack", "alexander", "owen", "asher", "samuel", "ethan",
@@ -575,30 +964,21 @@
       "gabriella", "anna", "sarah", "cora", "sadie", "piper", "lydia", "alexa", "josephine"
     ]);
 
-    // Names whose suffix would mislead the heuristic — override to the correct gender.
-    // (These are only reached if the name wasn't found in the dictionaries above.)
     const HEURISTIC_OVERRIDES = {
-      // ends in 'a' but typically male
       "mika": "male", "josh": "male", "luca": "male", "nikola": "male",
-      // ends in 'son' but typically female
       "madison": "female", "allison": "female", "addison": "female", "emerson": "unspecified",
-      // ends in 'or' but typically female
       "taylor": "unspecified", "jordan": "unspecified",
-      // ambiguous
       "casey": "unspecified", "riley": "unspecified", "avery": "unspecified", "quinn": "unspecified"
     };
 
-    // Student Gender Map: Name -> 'male' | 'female' | 'unspecified'
     let studentGenderMap = {};
 
-    // --- Gender Auto-Detection ---
     function autoDetectGender(name) {
       const firstName = name.trim().split(/\s+/)[0].toLowerCase();
       if (MALE_NAMES.has(firstName)) return 'male';
       if (FEMALE_NAMES.has(firstName)) return 'female';
       if (HEURISTIC_OVERRIDES[firstName]) return HEURISTIC_OVERRIDES[firstName];
 
-      // Conservative suffix heuristics (only for names not otherwise classified)
       if (firstName.endsWith('ette') || firstName.endsWith('ina') || firstName.endsWith('ella')) return 'female';
       if (firstName.endsWith('son') && firstName.length > 4) return 'male';
 
@@ -614,13 +994,11 @@
       renderGenderEditor();
     }
 
-    // Debounced input handler
     let inputDebounceTimer = null;
     function onStudentInput() {
       clearTimeout(inputDebounceTimer);
       inputDebounceTimer = setTimeout(() => {
-        const rawInput = document.getElementById('studentList').value;
-        const students = parseStudentNames(rawInput);
+        const students = parseStudentNames(document.getElementById('studentList').value);
         syncGenderMap(students);
       }, 150);
     }
@@ -640,8 +1018,6 @@
         return;
       }
 
-      // FIX: Use data-index + event delegation instead of interpolating names into onclick.
-      // This eliminates both the apostrophe-breaking bug and the XSS vector.
       container.innerHTML = students.map((student, index) => {
         const gender = studentGenderMap[student] || 'unspecified';
         const symbol = gender === 'male' ? '♂' : gender === 'female' ? '♀' : '⚧';
@@ -654,7 +1030,6 @@
       }).join('');
     }
 
-    // Event delegation — attached once, survives re-renders.
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('genderTagContainer').addEventListener('click', (event) => {
         const tag = event.target.closest('.gender-tag');
@@ -676,7 +1051,9 @@
       renderGenderEditor();
     }
 
-    // --- Theme Logic ---
+    // ============================================================
+    // THEME LOGIC
+    // ============================================================
     function initTheme() {
       const savedTheme = localStorage.getItem('theme');
       const isLight = savedTheme === 'light';
@@ -694,7 +1071,6 @@
       updateThemeButton(!isLight);
     }
 
-    // FIX: Clearer labels — the button describes the mode you'd switch TO.
     function updateThemeButton(isLight) {
       const btn = document.getElementById('themeToggleBtn');
       btn.textContent = isLight ? '🔮 Switch to Dark' : '🌴 Switch to Light';
@@ -702,7 +1078,9 @@
 
     initTheme();
 
-    // --- Helper Functions ---
+    // ============================================================
+    // HELPER FUNCTIONS
+    // ============================================================
     function parseStudentNames(text) {
       return text
         .split(/[\n,]+/)
@@ -731,7 +1109,9 @@
       });
     }
 
-    // --- Saved Classes Management ---
+    // ============================================================
+    // SAVED CLASSES MANAGEMENT
+    // ============================================================
     function getSavedClasses() {
       const saved = localStorage.getItem('classRosters');
       try {
@@ -849,7 +1229,6 @@
         renderClassDropdown();
         renderGenderEditor();
 
-        // FIX: clear stale results after deletion
         document.getElementById('resultsContainer').innerHTML =
           '<div class="card empty-state"><p>Load a roster or enter student names, then hit <strong>GENERATE GROUPS</strong>.</p></div>';
         document.getElementById('actionsBar').style.display = 'none';
@@ -864,7 +1243,9 @@
 
     renderClassDropdown();
 
-    // --- Group Generator Logic ---
+    // ============================================================
+    // GROUP GENERATOR LOGIC
+    // ============================================================
     function toggleMode() {
       const mode = document.querySelector('input[name="mode"]:checked').value;
       const label = document.getElementById('numberLabel');
@@ -921,7 +1302,6 @@
       }
 
       if (balanceGender) {
-        // Stratified round-robin distribution by gender category
         const males = shuffle(students.filter(s => (studentGenderMap[s] || 'unspecified') === 'male'));
         const females = shuffle(students.filter(s => (studentGenderMap[s] || 'unspecified') === 'female'));
         const unspecified = shuffle(students.filter(s => (studentGenderMap[s] || 'unspecified') === 'unspecified'));
@@ -955,7 +1335,6 @@
       let html = '<div class="groups-grid">';
 
       groups.forEach((group, index) => {
-        // FIX: zero-pad group numbers so group 10 isn't shown as "010".
         const groupNumber = String(index + 1).padStart(2, '0');
 
         const membersHtml = group.map(student => {
@@ -966,10 +1345,6 @@
                         : gender === 'female' ? 'female-color'
                         : 'neutral-color';
 
-          // FIX: use a CSS custom property for the student color so we can combine
-          // the inset shadow (from CSS) with the outer colored glow without one
-          // clobbering the other. Also fixed the missing space that made the
-          // original box-shadow declaration invalid.
           return `
             <li class="student-badge" style="--student-color: ${color};">
               <div class="student-info">
@@ -1010,8 +1385,6 @@
 
       const payload = text.trim();
 
-      // FIX: fall back to execCommand when the Clipboard API isn't available
-      // (e.g. file:// context where navigator.clipboard is undefined/insecure).
       if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(payload).then(() => {
           alert('Groups copied to clipboard!');
