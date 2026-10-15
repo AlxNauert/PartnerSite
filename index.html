@@ -232,16 +232,30 @@
 
     .group-card ul {
       list-style-type: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
     }
 
-    .group-card li {
-      padding: 0.35rem 0;
-      border-bottom: 1px dashed var(--border);
+    .student-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.6rem;
+      border-radius: 6px;
       font-size: 0.95rem;
+      font-weight: 500;
+      background-color: var(--input-bg);
+      border-left: 5px solid transparent;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
 
-    .group-card li:last-child {
-      border-bottom: none;
+    .student-color-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
     }
 
     .actions-bar {
@@ -294,8 +308,8 @@
         <div class="divider"></div>
 
         <div class="form-group">
-          <label for="studentList">Student Names (one per line):</label>
-          <textarea id="studentList" placeholder="Alice&#10;Bob&#10;Charlie&#10;Diana&#10;Evan&#10;Fiona"></textarea>
+          <label for="studentList">Student Names (commas or newlines):</label>
+          <textarea id="studentList" placeholder="Alice, Bob, Charlie&#10;Diana, Evan, Fiona"></textarea>
           
           <div class="row-btn-group">
             <button class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem;" onclick="saveNewClass()">💾 Save as New Class</button>
@@ -370,6 +384,26 @@
 
     initTheme();
 
+    // --- Helper Functions ---
+    // Parses student names separated by commas, newlines, or both
+    function parseStudentNames(text) {
+      return text
+        .split(/[\n,]+/)
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+    }
+
+    // Hash function to consistently convert string -> unique HSL color
+    function stringToColor(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      // Use Golden Ratio distribution for distinct hues
+      const hue = Math.abs(hash * 137.508) % 360;
+      return `hsl(${hue}, 70%, 50%)`;
+    }
+
     // --- Saved Classes Management ---
     function getSavedClasses() {
       const saved = localStorage.getItem('classRosters');
@@ -400,14 +434,14 @@
       const classes = getSavedClasses();
 
       if (className && classes[className]) {
-        document.getElementById('studentList').value = classes[className].join('\n');
+        document.getElementById('studentList').value = classes[className].join(', ');
       }
       toggleActionButtons();
     }
 
     function saveNewClass() {
       const text = document.getElementById('studentList').value;
-      const students = text.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+      const students = parseStudentNames(text);
 
       if (students.length === 0) {
         alert('Please enter student names before saving a class.');
@@ -440,7 +474,7 @@
       if (!className) return;
 
       const text = document.getElementById('studentList').value;
-      const students = text.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+      const students = parseStudentNames(text);
 
       const classes = getSavedClasses();
       classes[className] = students;
@@ -471,7 +505,6 @@
       actionButtons.style.display = select.value ? 'flex' : 'none';
     }
 
-    // Initialize Dropdown on Load
     renderClassDropdown();
 
     // --- Group Generator Logic ---
@@ -501,7 +534,7 @@
 
     function generateGroups() {
       const rawInput = document.getElementById('studentList').value;
-      const students = rawInput.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+      const students = parseStudentNames(rawInput);
 
       if (students.length === 0) {
         alert('Please enter at least one student name.');
@@ -524,12 +557,10 @@
         for (let i = 0; i < numGroups; i++) {
           groups.push([]);
         }
-        // Distribute round-robin style
         shuffled.forEach((student, index) => {
           groups[index % numGroups].push(student);
         });
       } else {
-        // Group Size Mode
         const groupSize = targetVal;
         for (let i = 0; i < shuffled.length; i += groupSize) {
           groups.push(shuffled.slice(i, i + groupSize));
@@ -543,6 +574,7 @@
       const container = document.getElementById('resultsContainer');
       const actionsBar = document.getElementById('actionsBar');
       const totalCount = document.getElementById('totalCount');
+      const currentClass = document.getElementById('classSelect').value || 'default';
 
       actionsBar.style.display = 'flex';
       totalCount.textContent = `Generated ${groups.length} Group${groups.length > 1 ? 's' : ''}`;
@@ -554,7 +586,16 @@
           <div class="group-card">
             <h3>Group ${index + 1}</h3>
             <ul>
-              ${group.map(student => `<li>${escapeHtml(student)}</li>`).join('')}
+              ${group.map(student => {
+                // Unique color per student + class combination
+                const color = stringToColor(`${currentClass}:${student.toLowerCase()}`);
+                return `
+                  <li class="student-badge" style="border-left-color: ${color};">
+                    <span class="student-color-dot" style="background-color: ${color};"></span>
+                    <span>${escapeHtml(student)}</span>
+                  </li>
+                `;
+              }).join('')}
             </ul>
           </div>
         `;
@@ -583,7 +624,7 @@
       let text = '';
       groupCards.forEach(card => {
         const title = card.querySelector('h3').innerText;
-        const members = Array.from(card.querySelectorAll('li')).map(li => `- ${li.innerText}`).join('\n');
+        const members = Array.from(card.querySelectorAll('.student-badge span:last-child')).map(span => `- ${span.innerText}`).join('\n');
         text += `${title}\n${members}\n\n`;
       });
 
