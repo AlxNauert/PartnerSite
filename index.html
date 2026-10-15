@@ -25,8 +25,8 @@
       --male-color: #01cdfe;
       --female-color: #ff71ce;
       --neutral-color: #05ffa1;
+      --matrix-zero-bg: rgba(185, 174, 217, 0.10);
 
-      /* Fluid layout tokens */
       --page-max: 1800px;
       --page-pad-x: clamp(1rem, 2.5vw, 3rem);
       --page-pad-y: clamp(1.25rem, 2.5vw, 2.5rem);
@@ -51,6 +51,7 @@
       --male-color: #0077ff;
       --female-color: #d9008f;
       --neutral-color: #00b874;
+      --matrix-zero-bg: rgba(107, 82, 132, 0.10);
     }
 
     * {
@@ -60,9 +61,7 @@
       font-family: 'Rajdhani', system-ui, -apple-system, sans-serif;
     }
 
-    html, body {
-      min-height: 100%;
-    }
+    html, body { min-height: 100%; }
 
     body {
       background-color: var(--bg);
@@ -78,7 +77,6 @@
       overflow-x: hidden;
     }
 
-    /* CRT Scanline overlay */
     body::before {
       content: " ";
       display: block;
@@ -101,7 +99,7 @@
 
     header {
       text-align: center;
-      margin-bottom: clamp(1.75rem, 3vw, 3rem);
+      margin-bottom: clamp(1.5rem, 2.4vw, 2.25rem);
       position: relative;
     }
 
@@ -157,6 +155,38 @@
       }
     }
 
+    /* ========== Tabs ========== */
+    .tabs {
+      display: flex;
+      gap: 0.25rem;
+      margin-bottom: clamp(1.25rem, 2vw, 2rem);
+      border-bottom: 2px solid var(--border);
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+    .tab-btn {
+      background: transparent;
+      color: var(--text-muted);
+      border: none;
+      padding: 0.7rem 1.25rem;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      text-shadow: 0 0 8px var(--primary);
+    }
+
     /* ========== Layout ========== */
     .app-layout {
       display: grid;
@@ -165,14 +195,12 @@
       align-items: start;
     }
 
-    /* Two-column at tablet */
     @media (min-width: 768px) {
       .app-layout {
         grid-template-columns: minmax(var(--panel-min), var(--panel-ideal)) minmax(0, 1fr);
       }
     }
 
-    /* Give the input panel more room on very wide screens */
     @media (min-width: 1400px) {
       :root {
         --panel-ideal: 24vw;
@@ -183,7 +211,6 @@
       }
     }
 
-    /* Even wider — let the left panel keep growing a bit */
     @media (min-width: 1800px) {
       :root {
         --page-max: 2000px;
@@ -201,9 +228,7 @@
       transition: background-color 0.3s, border-color 0.3s;
     }
 
-    .form-group {
-      margin-bottom: 1.25rem;
-    }
+    .form-group { margin-bottom: 1.25rem; }
 
     label {
       display: block;
@@ -228,10 +253,7 @@
       transition: all 0.2s;
     }
 
-    textarea {
-      resize: vertical;
-      min-height: 140px;
-    }
+    textarea { resize: vertical; min-height: 140px; }
 
     textarea:focus, input:focus, select:focus {
       border-color: var(--accent);
@@ -243,7 +265,6 @@
       gap: 0.5rem;
       margin-top: 0.5rem;
     }
-
     .row-btn-group .btn,
     .row-btn-group .btn-danger {
       width: auto;
@@ -256,7 +277,6 @@
       gap: 1rem;
       margin-bottom: 0.5rem;
     }
-
     .radio-label {
       display: flex;
       align-items: center;
@@ -293,11 +313,7 @@
       box-shadow: 0 0 15px var(--primary);
       transition: all 0.2s;
     }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 25px var(--primary);
-    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 0 25px var(--primary); }
 
     .btn-secondary {
       background: transparent;
@@ -305,7 +321,6 @@
       border: 2px solid var(--border);
       box-shadow: none;
     }
-
     .btn-secondary:hover {
       border-color: var(--accent);
       color: var(--accent);
@@ -322,7 +337,6 @@
       font-weight: 700;
       transition: all 0.2s;
     }
-
     .btn-danger:hover {
       background-color: var(--danger);
       color: #ffffff;
@@ -344,23 +358,14 @@
       line-height: 1.5;
       transition: border-color 0.2s, color 0.2s;
     }
-    .group-preview.empty {
-      opacity: 0.75;
-      font-style: italic;
-      border-style: dotted;
-    }
+    .group-preview.empty { opacity: 0.75; font-style: italic; border-style: dotted; }
     .group-preview .preview-value {
       color: var(--accent);
       text-shadow: 0 0 6px var(--accent);
       font-weight: 700;
     }
-    .group-preview .preview-warn {
-      color: var(--danger);
-      font-weight: 700;
-    }
-    .group-preview .preview-icon {
-      margin-right: 0.35rem;
-    }
+    .group-preview .preview-warn { color: var(--danger); font-weight: 700; }
+    .group-preview .preview-icon { margin-right: 0.35rem; }
 
     /* ===== Student Roster Manager ===== */
     .student-manager-header {
@@ -376,13 +381,9 @@
       color: var(--text-muted);
       letter-spacing: 0.5px;
     }
-    .student-manager-header #studentManagerSummary {
-      text-transform: uppercase;
-    }
-    .student-manager-bulk {
-      display: flex;
-      gap: 0.35rem;
-    }
+    .student-manager-header #studentManagerSummary { text-transform: uppercase; }
+
+    .student-manager-bulk { display: flex; gap: 0.35rem; }
     .student-manager-bulk .row-toggle {
       padding: 0.15rem 0.55rem;
       border-radius: 12px;
@@ -407,14 +408,12 @@
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 0.5rem;
-      /* Scale height with viewport */
       max-height: clamp(260px, 42vh, 560px);
       overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 0.35rem;
     }
-
     .student-manager .empty-msg {
       color: var(--text-muted);
       font-size: 0.85rem;
@@ -434,13 +433,9 @@
       font-weight: 700;
       transition: opacity 0.15s, background-color 0.15s;
     }
-    [data-theme="light"] .student-row {
-      background: rgba(0, 0, 0, 0.03);
-    }
+    [data-theme="light"] .student-row { background: rgba(0, 0, 0, 0.03); }
 
-    .student-row.excluded {
-      opacity: 0.42;
-    }
+    .student-row.excluded { opacity: 0.42; }
     .student-row.excluded .row-name {
       text-decoration: line-through;
       text-decoration-thickness: 2px;
@@ -453,12 +448,7 @@
       flex-shrink: 0;
       box-shadow: 0 0 6px currentColor, inset 0 0 2px rgba(255,255,255,0.6);
     }
-
-    .row-name {
-      flex: 1;
-      min-width: 0;
-      overflow-wrap: anywhere;
-    }
+    .row-name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 
     .row-gender {
       padding: 0.15rem 0.5rem;
@@ -473,9 +463,7 @@
       background: transparent;
       font-family: inherit;
     }
-    .row-gender:hover {
-      transform: scale(1.08);
-    }
+    .row-gender:hover { transform: scale(1.08); }
     .row-gender.male {
       color: var(--male-color);
       border-color: var(--male-color);
@@ -526,7 +514,6 @@
     /* ===== Results Grid ===== */
     .groups-grid {
       display: grid;
-      /* Column width scales with viewport so wide screens get denser packs */
       grid-template-columns: repeat(auto-fill, minmax(clamp(220px, 16vw, 300px), 1fr));
       gap: clamp(0.85rem, 1vw, 1.25rem);
     }
@@ -539,11 +526,7 @@
       box-shadow: 0 0 10px var(--secondary);
       transition: all 0.3s;
     }
-
-    .group-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 0 20px var(--secondary);
-    }
+    .group-card:hover { transform: translateY(-3px); box-shadow: 0 0 20px var(--secondary); }
 
     .group-card h3 {
       font-family: 'Press Start 2P', monospace;
@@ -582,10 +565,7 @@
       gap: 0.5rem;
       min-width: 0;
     }
-
-    .student-info span:last-child {
-      overflow-wrap: anywhere;
-    }
+    .student-info span:last-child { overflow-wrap: anywhere; }
 
     .student-color-dot {
       width: 12px;
@@ -605,7 +585,6 @@
       gap: 0.75rem;
       flex-wrap: wrap;
     }
-
     .actions-bar h2 {
       font-family: 'Press Start 2P', monospace;
       font-size: clamp(0.85rem, 0.3vw + 0.75rem, 1.05rem);
@@ -626,31 +605,215 @@
       margin: 1.25rem 0;
     }
 
-    /* ===== Ultra-wide refinements ===== */
-    @media (min-width: 1600px) {
-      /* On very wide screens, break the left panel into a comfortable scroll column
-         and let the results breathe with an extra column */
-      .groups-grid {
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      }
-
-      .student-manager {
-        max-height: clamp(300px, 50vh, 640px);
-      }
+    /* ========== Pairing History Tab ========== */
+    .history-panel {
+      padding: clamp(1.25rem, 2vw, 2rem);
     }
 
-    /* ===== Small phone tweaks ===== */
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+    }
+    .history-header h2 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(0.9rem, 0.4vw + 0.75rem, 1.15rem);
+      color: var(--accent);
+      text-shadow: 0 0 8px var(--accent);
+      margin-bottom: 0.5rem;
+    }
+    .history-subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .history-scope {
+      color: var(--secondary);
+      font-weight: 700;
+    }
+
+    .history-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .history-actions .btn,
+    .history-actions .btn-danger {
+      width: auto;
+      padding: 0.55rem 1rem;
+      font-size: 0.85rem;
+      letter-spacing: 1.5px;
+    }
+
+    .history-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      text-align: center;
+    }
+    .stat-value {
+      display: block;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 1.35rem;
+      color: var(--primary);
+      text-shadow: 0 0 8px var(--primary);
+      margin-bottom: 0.4rem;
+      line-height: 1.2;
+    }
+    .stat-label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .matrix-wrapper {
+      overflow: auto;
+      max-height: clamp(360px, 68vh, 900px);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--input-bg);
+      padding: 0.5rem;
+    }
+
+    .pairing-matrix {
+      border-collapse: separate;
+      border-spacing: 3px;
+      font-size: 0.85rem;
+      margin: 0 auto;
+    }
+
+    .pairing-matrix th {
+      background: var(--card-bg);
+      backdrop-filter: blur(6px);
+      padding: 0.45rem 0.6rem;
+      font-weight: 700;
+      color: var(--secondary);
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      max-width: 110px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      border-radius: 4px;
+    }
+
+    .pairing-matrix thead th {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      /* Rotate column headers for a compact layout */
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      padding: 0.6rem 0.35rem;
+      max-height: 140px;
+    }
+
+    .pairing-matrix tbody th {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      text-align: left;
+      max-width: 140px;
+    }
+
+    .pairing-matrix thead th.corner {
+      position: sticky;
+      top: 0;
+      left: 0;
+      z-index: 4;
+      writing-mode: horizontal-tb;
+      transform: none;
+      background: var(--card-bg);
+    }
+
+    .pairing-matrix td {
+      padding: 0.45rem 0.5rem;
+      text-align: center;
+      font-weight: 700;
+      border-radius: 4px;
+      min-width: 42px;
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+      transition: outline 0.15s, transform 0.1s;
+      cursor: default;
+    }
+
+    .pairing-matrix td.diagonal {
+      background: transparent !important;
+      color: var(--text-muted);
+      opacity: 0.35;
+      font-weight: 500;
+    }
+
+    .pairing-matrix td.zero {
+      background: var(--matrix-zero-bg);
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .pairing-matrix td:not(.diagonal):hover {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+      transform: scale(1.02);
+    }
+
+    .matrix-empty {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 3rem 1rem;
+      font-size: 1rem;
+    }
+
+    .heatmap-legend {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      flex-wrap: wrap;
+      margin-top: 1.25rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .legend-swatch {
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+    .legend-swatch.zero { background: var(--matrix-zero-bg); }
+    .legend-swatch.l1 { background: rgba(255, 113, 206, 0.30); }
+    .legend-swatch.l2 { background: rgba(255, 113, 206, 0.50); }
+    .legend-swatch.l3 { background: rgba(255, 113, 206, 0.70); }
+    .legend-swatch.l4 { background: rgba(255, 113, 206, 0.90); }
+    .legend-swatch.zero-label { background: transparent; border: 1px dashed var(--border); }
+
+    @media (min-width: 1600px) {
+      .groups-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+      .student-manager { max-height: clamp(300px, 50vh, 640px); }
+    }
+
     @media (max-width: 480px) {
-      header h1 {
-        letter-spacing: 0;
-      }
-      .row-gender {
-        min-width: 34px;
-        padding: 0.15rem 0.35rem;
-      }
-      .row-toggle {
-        min-width: 62px;
-      }
+      header h1 { letter-spacing: 0; }
+      .row-gender { min-width: 34px; padding: 0.15rem 0.35rem; }
+      .row-toggle { min-width: 62px; }
+      .pairing-matrix th { font-size: 0.65rem; }
     }
   </style>
 </head>
@@ -665,103 +828,190 @@
       <p>// A E S T H E T I C • R O S T E R • S H U F F L E R</p>
     </header>
 
-    <div class="app-layout">
-      <!-- Input Panel -->
-      <div class="card">
-        
-        <!-- Saved Classes Manager -->
-        <div class="form-group">
-          <label for="classSelect">Saved Rosters:</label>
-          <select id="classSelect" onchange="loadClass()">
-            <option value="">-- Select Class --</option>
-          </select>
-          <div class="row-btn-group" id="classActionButtons" style="display: none;">
-            <button class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem;" onclick="updateClass()" type="button">Update Roster</button>
-            <button class="btn-danger" style="font-size: 0.85rem; padding: 0.5rem;" onclick="deleteClass()" type="button">Delete</button>
-          </div>
-        </div>
+    <!-- Tab bar -->
+    <nav class="tabs" role="tablist">
+      <button class="tab-btn active" data-tab="generator" onclick="switchTab('generator')" type="button" role="tab">🎲 Group Generator</button>
+      <button class="tab-btn" data-tab="history" onclick="switchTab('history')" type="button" role="tab">📊 Pairing History</button>
+    </nav>
 
-        <div class="divider"></div>
-
-        <div class="form-group">
-          <label for="studentList">Student Names:</label>
-          <textarea id="studentList" placeholder="Liam, Olivia, Noah, Emma, Oliver, Charlotte&#10;James, Amelia, Elijah, Sophia" oninput="onStudentInput()"></textarea>
+    <!-- ===== TAB: Group Generator ===== -->
+    <div id="tab-generator" class="tab-panel">
+      <div class="app-layout">
+        <!-- Input Panel -->
+        <div class="card">
           
-          <div class="row-btn-group">
-            <button class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem;" onclick="saveNewClass()" type="button">💾 Save Class Roster</button>
-          </div>
-        </div>
-
-        <!-- Student Roster Manager (Colors / Gender / Inclusion) -->
-        <div class="form-group">
-          <label>Roster Manager:</label>
-          <button class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem;" onclick="toggleStudentManager()" type="button" id="studentManagerToggleBtn">
-            🎨 Review Colors • Gender • Inclusion
-          </button>
-          
-          <div id="studentManagerPanel" style="display: none;">
-            <div class="student-manager-header">
-              <span id="studentManagerSummary">0 of 0 included</span>
-              <div class="student-manager-bulk">
-                <button class="row-toggle" onclick="includeAllStudents()" type="button">Include All</button>
-                <button class="row-toggle" onclick="excludeAllStudents()" type="button">Exclude All</button>
-              </div>
+          <!-- Saved Classes Manager -->
+          <div class="form-group">
+            <label for="classSelect">Saved Rosters:</label>
+            <select id="classSelect" onchange="loadClass()">
+              <option value="">-- Select Class --</option>
+            </select>
+            <div class="row-btn-group" id="classActionButtons" style="display: none;">
+              <button class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem;" onclick="updateClass()" type="button">Update Roster</button>
+              <button class="btn-danger" style="font-size: 0.85rem; padding: 0.5rem;" onclick="deleteClass()" type="button">Delete</button>
             </div>
-            <div class="student-manager" id="studentManagerContainer"></div>
-            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; text-align: center;">
-              Click the gender badge to cycle ♂ → ♀ → ⚧. Click <strong>Include</strong> / <strong>Excluded</strong> to control who joins the groups.
-            </p>
           </div>
 
-          <label class="checkbox-label">
-            <input type="checkbox" id="balanceGenders" checked> Balance Genders Across Groups
-          </label>
-        </div>
+          <div class="divider"></div>
 
-        <div class="divider"></div>
+          <div class="form-group">
+            <label for="studentList">Student Names:</label>
+            <textarea id="studentList" placeholder="Liam, Olivia, Noah, Emma, Oliver, Charlotte&#10;James, Amelia, Elijah, Sophia" oninput="onStudentInput()"></textarea>
+            
+            <div class="row-btn-group">
+              <button class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem;" onclick="saveNewClass()" type="button">💾 Save Class Roster</button>
+            </div>
+          </div>
 
-        <div class="form-group">
-          <label>Grouping Mode:</label>
-          <div class="radio-group">
-            <label class="radio-label">
-              <input type="radio" name="mode" value="numGroups" checked onchange="toggleMode()"> Total Groups
+          <!-- Student Roster Manager -->
+          <div class="form-group">
+            <label>Roster Manager:</label>
+            <button class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem;" onclick="toggleStudentManager()" type="button" id="studentManagerToggleBtn">
+              🎨 Review Colors • Gender • Inclusion
+            </button>
+            
+            <div id="studentManagerPanel" style="display: none;">
+              <div class="student-manager-header">
+                <span id="studentManagerSummary">0 of 0 included</span>
+                <div class="student-manager-bulk">
+                  <button class="row-toggle" onclick="includeAllStudents()" type="button">Include All</button>
+                  <button class="row-toggle" onclick="excludeAllStudents()" type="button">Exclude All</button>
+                </div>
+              </div>
+              <div class="student-manager" id="studentManagerContainer"></div>
+              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; text-align: center;">
+                Click the gender badge to cycle ♂ → ♀ → ⚧. Click <strong>Include</strong> / <strong>Excluded</strong> to control who joins the groups.
+              </p>
+            </div>
+
+            <label class="checkbox-label">
+              <input type="checkbox" id="balanceGenders" checked> Balance Genders Across Groups
             </label>
-            <label class="radio-label">
-              <input type="radio" name="mode" value="groupSize" onchange="toggleMode()"> Group Size
-            </label>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="form-group">
+            <label>Grouping Mode:</label>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="mode" value="numGroups" checked onchange="toggleMode()"> Total Groups
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="mode" value="groupSize" onchange="toggleMode()"> Group Size
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label id="numberLabel" for="numberInput">Number of Groups:</label>
+            <input type="number" id="numberInput" min="1" value="2">
+          </div>
+
+          <button class="btn" onclick="generateGroups()" type="button">⚡ Generate Groups</button>
+
+          <div id="groupPreview" class="group-preview empty">
+            Enter student names to see a preview.
           </div>
         </div>
 
-        <div class="form-group">
-          <label id="numberLabel" for="numberInput">Number of Groups:</label>
-          <input type="number" id="numberInput" min="1" value="2">
-        </div>
+        <!-- Results Panel -->
+        <div>
+          <div class="actions-bar" id="actionsBar" style="display: none;">
+            <h2 id="totalCount">GROUPS</h2>
+            <button class="btn btn-secondary" style="width: auto; margin-top: 0; padding: 0.6rem 1rem;" onclick="copyGroups()" type="button">📋 Copy Results</button>
+          </div>
 
-        <button class="btn" onclick="generateGroups()" type="button">⚡ Generate Groups</button>
-
-        <!-- Live preview of group distribution -->
-        <div id="groupPreview" class="group-preview empty">
-          Enter student names to see a preview.
+          <div id="resultsContainer">
+            <div class="card empty-state">
+              <p>Load a roster or enter student names, then hit <strong>GENERATE GROUPS</strong>.</p>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
 
-      <!-- Results Panel -->
-      <div>
-        <div class="actions-bar" id="actionsBar" style="display: none;">
-          <h2 id="totalCount">GROUPS</h2>
-          <button class="btn btn-secondary" style="width: auto; margin-top: 0; padding: 0.6rem 1rem;" onclick="copyGroups()" type="button">📋 Copy Results</button>
+    <!-- ===== TAB: Pairing History ===== -->
+    <div id="tab-history" class="tab-panel" style="display: none;">
+      <div class="card history-panel">
+        <div class="history-header">
+          <div>
+            <h2>PAIRING MATRIX</h2>
+            <p class="history-subtitle">
+              How often each pair has been grouped together —
+              <span class="history-scope" id="historyScopeLabel">default roster</span>
+            </p>
+          </div>
+          <div class="history-actions">
+            <button class="btn btn-danger" onclick="clearPairingHistory()" type="button">🗑 Clear History</button>
+          </div>
         </div>
 
-        <div id="resultsContainer">
-          <div class="card empty-state">
-            <p>Load a roster or enter student names, then hit <strong>GENERATE GROUPS</strong>.</p>
+        <div class="history-stats">
+          <div class="stat">
+            <span class="stat-value" id="historyGenCount">0</span>
+            <span class="stat-label">Generations</span>
           </div>
+          <div class="stat">
+            <span class="stat-value" id="historyStudentCount">0</span>
+            <span class="stat-label">Students Tracked</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="historyPairCount">0</span>
+            <span class="stat-label">Total Pairings</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="historyIsolatedCount">0</span>
+            <span class="stat-label">Never Paired</span>
+          </div>
+        </div>
+
+        <div class="matrix-wrapper">
+          <table class="pairing-matrix" id="pairingMatrix">
+            <tbody>
+              <tr>
+                <td class="matrix-empty">No data yet. Generate groups to start building the pairing history.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="heatmap-legend">
+          <span>Pairings:</span>
+          <span class="legend-swatch zero" title="Never paired"></span>
+          <span>0</span>
+          <span class="legend-swatch l1"></span>
+          <span>Low</span>
+          <span class="legend-swatch l2"></span>
+          <span class="legend-swatch l3"></span>
+          <span>High</span>
+          <span class="legend-swatch l4"></span>
         </div>
       </div>
     </div>
   </div>
 
   <script>
+    // ============================================================
+    // TAB SWITCHING
+    // ============================================================
+    let activeTab = 'generator';
+
+    function switchTab(name) {
+      activeTab = name;
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === name);
+      });
+      document.querySelectorAll('.tab-panel').forEach(panel => {
+        panel.style.display = panel.id === 'tab-' + name ? 'block' : 'none';
+      });
+      if (name === 'history') {
+        renderPairingMatrix();
+      }
+      // Scroll to top so tab content is visible immediately
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     // ============================================================
     // BUILT-IN NAME DICTIONARIES FOR GENDER DETECTION
     // ============================================================
@@ -819,7 +1069,6 @@
       });
       studentGenderMap = newMap;
 
-      // Drop exclusions for students that are no longer in the roster
       const newExcluded = new Set();
       excludedStudents.forEach(name => {
         if (studentSet.has(name)) newExcluded.add(name);
@@ -840,10 +1089,9 @@
     }
 
     // ============================================================
-    // GROUP PREVIEW (updates live under the Generate button)
+    // GROUP PREVIEW
     // ============================================================
     function computeGroupPlan(students, mode, targetVal) {
-      // Returns { numGroups, minSize, maxSize } or null if inputs are invalid
       if (students.length === 0) return null;
       if (!targetVal || targetVal <= 0) return null;
 
@@ -855,11 +1103,7 @@
       }
 
       const avg = students.length / numGroups;
-      return {
-        numGroups,
-        minSize: Math.floor(avg),
-        maxSize: Math.ceil(avg)
-      };
+      return { numGroups, minSize: Math.floor(avg), maxSize: Math.ceil(avg) };
     }
 
     function updateGroupPreview() {
@@ -900,13 +1144,9 @@
       }
 
       const { numGroups, minSize, maxSize } = plan;
-
-      let sizeText;
-      if (minSize === maxSize) {
-        sizeText = `${minSize} student${minSize !== 1 ? 's' : ''} each`;
-      } else {
-        sizeText = `${minSize}–${maxSize} students each`;
-      }
+      let sizeText = (minSize === maxSize)
+        ? `${minSize} student${minSize !== 1 ? 's' : ''} each`
+        : `${minSize}–${maxSize} students each`;
 
       let html = `<span class="preview-icon">📊</span>`;
       html += `<span class="preview-value">${numGroups}</span> group${numGroups !== 1 ? 's' : ''}`;
@@ -922,7 +1162,7 @@
     }
 
     // ============================================================
-    // STUDENT ROSTER MANAGER (COLOR / GENDER / INCLUSION)
+    // STUDENT ROSTER MANAGER
     // ============================================================
     function toggleStudentManager() {
       const panel = document.getElementById('studentManagerPanel');
@@ -944,9 +1184,7 @@
       }
 
       const includedCount = students.filter(s => !excludedStudents.has(s)).length;
-      if (summary) {
-        summary.textContent = `${includedCount} of ${students.length} included`;
-      }
+      if (summary) summary.textContent = `${includedCount} of ${students.length} included`;
 
       container.innerHTML = students.map((student, index) => {
         const gender = studentGenderMap[student] || 'unspecified';
@@ -979,11 +1217,8 @@
         if (Number.isNaN(index)) return;
 
         const action = button.dataset.action;
-        if (action === 'cycle-gender') {
-          cycleGenderByIndex(index);
-        } else if (action === 'toggle-inclusion') {
-          toggleInclusionByIndex(index);
-        }
+        if (action === 'cycle-gender') cycleGenderByIndex(index);
+        else if (action === 'toggle-inclusion') toggleInclusionByIndex(index);
       });
 
       document.getElementById('numberInput').addEventListener('input', updateGroupPreview);
@@ -1011,11 +1246,8 @@
       const student = students[index];
       if (!student) return;
 
-      if (excludedStudents.has(student)) {
-        excludedStudents.delete(student);
-      } else {
-        excludedStudents.add(student);
-      }
+      if (excludedStudents.has(student)) excludedStudents.delete(student);
+      else excludedStudents.add(student);
       renderStudentManager();
       updateGroupPreview();
     }
@@ -1051,6 +1283,9 @@
       document.documentElement.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);
       updateThemeButton(!isLight);
+
+      // Re-render matrix since it uses theme-aware colors
+      if (activeTab === 'history') renderPairingMatrix();
     }
 
     function updateThemeButton(isLight) {
@@ -1061,7 +1296,7 @@
     initTheme();
 
     // ============================================================
-    // HELPER FUNCTIONS
+    // HELPERS
     // ============================================================
     function parseStudentNames(text) {
       return text
@@ -1110,7 +1345,6 @@
       const currentSelection = select.value;
 
       select.innerHTML = '<option value="">-- Select Class --</option>';
-      
       Object.keys(classes).sort().forEach(className => {
         const option = document.createElement('option');
         option.value = className;
@@ -1118,9 +1352,7 @@
         select.appendChild(option);
       });
 
-      if (classes[currentSelection]) {
-        select.value = currentSelection;
-      }
+      if (classes[currentSelection]) select.value = currentSelection;
       toggleActionButtons();
     }
 
@@ -1151,6 +1383,7 @@
       toggleActionButtons();
       renderStudentManager();
       updateGroupPreview();
+      if (activeTab === 'history') renderPairingMatrix();
     }
 
     function saveNewClass() {
@@ -1168,9 +1401,7 @@
       const trimmedName = className.trim();
       const classes = getSavedClasses();
 
-      if (classes[trimmedName] && !confirm(`"${trimmedName}" already exists. Overwrite?`)) {
-        return;
-      }
+      if (classes[trimmedName] && !confirm(`"${trimmedName}" already exists. Overwrite?`)) return;
 
       classes[trimmedName] = {
         students: students,
@@ -1189,7 +1420,6 @@
     function updateClass() {
       const select = document.getElementById('classSelect');
       const className = select.value;
-
       if (!className) return;
 
       const students = parseStudentNames(document.getElementById('studentList').value);
@@ -1201,17 +1431,15 @@
         excluded: Array.from(excludedStudents)
       };
       localStorage.setItem('classRosters', JSON.stringify(classes));
-
       alert(`Updated "${className}".`);
     }
 
     function deleteClass() {
       const select = document.getElementById('classSelect');
       const className = select.value;
-
       if (!className) return;
 
-      if (confirm(`Delete roster "${className}"?`)) {
+      if (confirm(`Delete roster "${className}"?\n\nThis will NOT delete its pairing history — that's stored separately.`)) {
         const classes = getSavedClasses();
         delete classes[className];
         localStorage.setItem('classRosters', JSON.stringify(classes));
@@ -1236,6 +1464,184 @@
     }
 
     renderClassDropdown();
+
+    // ============================================================
+    // PAIRING HISTORY (persistence + recording)
+    // ============================================================
+    const PAIR_SEP = '\x1f'; // unit separator — practically never appears in real names
+
+    function pairKey(a, b) {
+      return a < b ? a + PAIR_SEP + b : b + PAIR_SEP + a;
+    }
+
+    function getPairingHistory() {
+      const raw = localStorage.getItem('pairingHistory');
+      try {
+        return raw ? JSON.parse(raw) : {};
+      } catch (e) {
+        console.warn('Failed to parse pairing history, resetting.', e);
+        return {};
+      }
+    }
+
+    function getHistoryScopeName() {
+      return document.getElementById('classSelect').value || 'default';
+    }
+
+    function recordPairings(className, groups) {
+      const history = getPairingHistory();
+      if (!history[className]) {
+        history[className] = { pairs: {}, generations: 0 };
+      }
+      const entry = history[className];
+      if (!entry.pairs) entry.pairs = {};
+      if (typeof entry.generations !== 'number') entry.generations = 0;
+
+      groups.forEach(group => {
+        for (let i = 0; i < group.length; i++) {
+          for (let j = i + 1; j < group.length; j++) {
+            const key = pairKey(group[i], group[j]);
+            entry.pairs[key] = (entry.pairs[key] || 0) + 1;
+          }
+        }
+      });
+
+      entry.generations += 1;
+      entry.lastUpdated = Date.now();
+
+      localStorage.setItem('pairingHistory', JSON.stringify(history));
+    }
+
+    function clearPairingHistory() {
+      const className = getHistoryScopeName();
+      const label = document.getElementById('classSelect').value || 'default roster';
+
+      if (!confirm(`Clear ALL pairing history for "${label}"?\n\nThis cannot be undone.`)) return;
+
+      const history = getPairingHistory();
+      delete history[className];
+      localStorage.setItem('pairingHistory', JSON.stringify(history));
+      renderPairingMatrix();
+    }
+
+    // ============================================================
+    // PAIRING MATRIX RENDERING
+    // ============================================================
+    function heatColor(count, maxCount) {
+      if (count <= 0) return null; // caller uses .zero class
+      const t = maxCount <= 1 ? 0.5 : (count - 1) / (maxCount - 1);
+      const alpha = 0.30 + t * 0.60; // 0.30 → 0.90
+      return `rgba(255, 113, 206, ${alpha.toFixed(3)})`;
+    }
+
+    function renderPairingMatrix() {
+      const scopeLabel = document.getElementById('historyScopeLabel');
+      const className = getHistoryScopeName();
+      const label = document.getElementById('classSelect').value || 'default roster';
+      scopeLabel.textContent = label;
+
+      const history = getPairingHistory();
+      const entry = history[className] || { pairs: {}, generations: 0 };
+      const pairs = entry.pairs || {};
+
+      // Students = union of current roster + anyone in the history for this scope
+      const currentStudents = parseStudentNames(document.getElementById('studentList').value);
+      const historicalNames = new Set();
+      Object.keys(pairs).forEach(key => {
+        const parts = key.split(PAIR_SEP);
+        if (parts.length === 2) {
+          historicalNames.add(parts[0]);
+          historicalNames.add(parts[1]);
+        }
+      });
+
+      const allStudents = Array.from(new Set([...currentStudents, ...historicalNames]))
+        .sort((a, b) => a.localeCompare(b));
+
+      // --- Stats ---
+      document.getElementById('historyGenCount').textContent = entry.generations || 0;
+      document.getElementById('historyStudentCount').textContent = allStudents.length;
+
+      let totalPairings = 0;
+      let isolatedPairs = 0;
+      let maxCount = 0;
+
+      for (let i = 0; i < allStudents.length; i++) {
+        for (let j = i + 1; j < allStudents.length; j++) {
+          const c = pairs[pairKey(allStudents[i], allStudents[j])] || 0;
+          if (c > 0) {
+            totalPairings += c;
+            if (c > maxCount) maxCount = c;
+          } else {
+            isolatedPairs++;
+          }
+        }
+      }
+
+      document.getElementById('historyPairCount').textContent = totalPairings;
+      document.getElementById('historyIsolatedCount').textContent = isolatedPairs;
+
+      // --- Table ---
+      const table = document.getElementById('pairingMatrix');
+
+      if (allStudents.length === 0) {
+        table.innerHTML = `
+          <tbody>
+            <tr>
+              <td class="matrix-empty">
+                No students yet. Add students and generate groups to start building the history.
+              </td>
+            </tr>
+          </tbody>
+        `;
+        return;
+      }
+
+      if (allStudents.length === 1) {
+        table.innerHTML = `
+          <tbody>
+            <tr>
+              <td class="matrix-empty">
+                Only one student tracked. Add more students to see pairings.
+              </td>
+            </tr>
+          </tbody>
+        `;
+        return;
+      }
+
+      // Build header row
+      let html = '<thead><tr><th class="corner">Student</th>';
+      allStudents.forEach(name => {
+        html += `<th title="${escapeHtml(name)}">${escapeHtml(name)}</th>`;
+      });
+      html += '</tr></thead><tbody>';
+
+      // Build body rows
+      allStudents.forEach((rowName, i) => {
+        html += `<tr><th title="${escapeHtml(rowName)}">${escapeHtml(rowName)}</th>`;
+        allStudents.forEach((colName, j) => {
+          if (i === j) {
+            html += '<td class="diagonal" title="Same student">—</td>';
+            return;
+          }
+
+          const count = pairs[pairKey(rowName, colName)] || 0;
+          const tooltip = `${rowName} & ${colName} — paired ${count} time${count !== 1 ? 's' : ''}`;
+
+          if (count === 0) {
+            html += `<td class="zero" title="${escapeHtml(tooltip)}">·</td>`;
+          } else {
+            const bg = heatColor(count, maxCount);
+            html += `<td style="background-color: ${bg};" title="${escapeHtml(tooltip)}">${count}</td>`;
+          }
+        });
+        html += '</tr>';
+      });
+      html += '</tbody>';
+
+      table.innerHTML = html;
+    }
 
     // ============================================================
     // GROUP GENERATOR LOGIC
@@ -1301,9 +1707,7 @@
         numGroups = Math.min(targetVal, students.length);
       }
 
-      for (let i = 0; i < numGroups; i++) {
-        groups.push([]);
-      }
+      for (let i = 0; i < numGroups; i++) groups.push([]);
 
       if (balanceGender) {
         const males = shuffle(students.filter(s => (studentGenderMap[s] || 'unspecified') === 'male'));
@@ -1324,7 +1728,13 @@
         });
       }
 
+      // Record this generation into the pairing history
+      recordPairings(getHistoryScopeName(), groups);
+
       renderGroups(groups, { excludedCount, totalCount: allStudents.length });
+
+      // If the history tab happens to be visible, refresh it too
+      if (activeTab === 'history') renderPairingMatrix();
     }
 
     function renderGroups(groups, meta = {}) {
@@ -1348,7 +1758,6 @@
 
         const membersHtml = group.map(student => {
           const color = stringToColor(`${currentClass}:${student.toLowerCase()}`);
-
           return `
             <li class="student-badge" style="--student-color: ${color};">
               <div class="student-info">
@@ -1389,9 +1798,7 @@
       if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(payload).then(() => {
           alert('Groups copied to clipboard!');
-        }).catch(err => {
-          fallbackCopy(payload, err);
-        });
+        }).catch(err => fallbackCopy(payload, err));
       } else {
         fallbackCopy(payload);
       }
