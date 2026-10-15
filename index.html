@@ -22,6 +22,9 @@
       --radius: 12px;
       --grid-color: rgba(255, 113, 206, 0.15);
       --glow: 0 0 12px rgba(255, 113, 206, 0.6);
+      --male-color: #01cdfe;
+      --female-color: #ff71ce;
+      --neutral-color: #05ffa1;
     }
 
     [data-theme="light"] {
@@ -37,6 +40,9 @@
       --danger: #e60039;
       --grid-color: rgba(217, 0, 143, 0.12);
       --glow: 0 0 10px rgba(217, 0, 143, 0.3);
+      --male-color: #0077ff;
+      --female-color: #d9008f;
+      --neutral-color: #00b874;
     }
 
     * {
@@ -60,7 +66,7 @@
       overflow-x: hidden;
     }
 
-    /* Subtle CRT Scanline overlay */
+    /* CRT Scanline overlay */
     body::before {
       content: " ";
       display: block;
@@ -180,7 +186,7 @@
 
     textarea {
       resize: vertical;
-      min-height: 160px;
+      min-height: 140px;
     }
 
     textarea:focus, input:focus, select:focus {
@@ -207,6 +213,18 @@
       font-weight: 600;
       cursor: pointer;
       color: var(--text);
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--accent);
+      text-transform: uppercase;
+      font-size: 0.95rem;
+      margin-top: 0.5rem;
     }
 
     .btn {
@@ -260,6 +278,56 @@
       box-shadow: 0 0 12px var(--danger);
     }
 
+    /* Gender Management Panel */
+    .gender-editor {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.85rem;
+      margin-top: 0.75rem;
+      max-height: 220px;
+      overflow-y: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .gender-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid transparent;
+      user-select: none;
+      transition: all 0.2s;
+    }
+
+    .gender-tag.male {
+      background-color: rgba(1, 205, 254, 0.15);
+      color: var(--male-color);
+      border-color: var(--male-color);
+    }
+
+    .gender-tag.female {
+      background-color: rgba(255, 113, 206, 0.15);
+      color: var(--female-color);
+      border-color: var(--female-color);
+    }
+
+    .gender-tag.unspecified {
+      background-color: rgba(5, 255, 161, 0.15);
+      color: var(--neutral-color);
+      border-color: var(--neutral-color);
+    }
+
+    .gender-tag:hover {
+      transform: scale(1.05);
+    }
+
     .groups-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -299,6 +367,7 @@
     .student-badge {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 0.6rem;
       padding: 0.5rem 0.7rem;
       border-radius: 6px;
@@ -309,6 +378,12 @@
       box-shadow: inset 0 0 5px rgba(255,255,255,0.05);
     }
 
+    .student-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
     .student-color-dot {
       width: 12px;
       height: 12px;
@@ -316,6 +391,11 @@
       display: inline-block;
       flex-shrink: 0;
       box-shadow: 0 0 6px currentColor;
+    }
+
+    .gender-icon {
+      font-size: 0.85rem;
+      font-weight: bold;
     }
 
     .actions-bar {
@@ -377,12 +457,33 @@
 
         <div class="form-group">
           <label for="studentList">Student Names:</label>
-          <textarea id="studentList" placeholder="Macintosh Plus, Blank Banshee, Vektroid&#10;Saint Pepsi, Windows 96"></textarea>
+          <textarea id="studentList" placeholder="Liam, Olivia, Noah, Emma, Oliver, Charlotte&#10;James, Amelia, Elijah, Sophia" oninput="onStudentInput()"></textarea>
           
           <div class="row-btn-group">
             <button class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem;" onclick="saveNewClass()">💾 Save Class Roster</button>
           </div>
         </div>
+
+        <!-- Gender Sorting & Correction Panel -->
+        <div class="form-group">
+          <label>Gender Settings:</label>
+          <button class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem;" onclick="toggleGenderEditor()">
+            👤 Review & Assign Genders
+          </button>
+          
+          <div id="genderEditorPanel" style="display: none;">
+            <div class="gender-editor" id="genderTagContainer"></div>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; text-align: center;">
+              Click any badge to toggle: ♂ Male → ♀ Female → ⚧ Unspecified
+            </p>
+          </div>
+
+          <label class="checkbox-label">
+            <input type="checkbox" id="balanceGenders" checked> Balance Genders Across Groups
+          </label>
+        </div>
+
+        <div class="divider"></div>
 
         <div class="form-group">
           <label>Grouping Mode:</label>
@@ -421,6 +522,107 @@
   </div>
 
   <script>
+    // --- Built-In Name Dictionaries for Gender Detection ---
+    const MALE_NAMES = new Set([
+      "liam", "noah", "oliver", "james", "elijah", "william", "henry", "lucas", "benjamin", "theodore",
+      "mateo", "levi", "sebastian", "daniel", "jack", "alexander", "owen", "asher", "samuel", "ethan",
+      "leo", "jackson", "mason", "ezra", "john", "hudson", "luca", "david", "joseph", "julian", "luke",
+      "waylon", "isaac", "jayden", "thomas", "anthony", "dylan", "lincoln", "charles", "christopher",
+      "jaxon", "maverick", "josiah", "isaiah", "andrew", "elias", "joshua", "nathan", "caleb", "ryan",
+      "adrian", "miles", "eli", "nolan", "christian", "aaron", "cameron", "ezekiel", "colton", "luca",
+      "landon", "hunter", "jonathan", "santiago", "axel", "easton", "cooper", "jeremiah", "angel", "roman",
+      "connor", "jameson", "robert", "greyson", "jordan", "ian", "carson", "jaxson", "leonardo", "nicholas",
+      "dominic", "austin", "everett", "brooks", "xavier", "kai", "jose", "parker", "adam", "jace"
+    ]);
+
+    const FEMALE_NAMES = new Set([
+      "olivia", "emma", "charlotte", "amelia", "sophia", "mia", "isabella", "ava", "evelyn", "elena",
+      "harpist", "harper", "luna", "camila", "gianna", "elizabeth", "eleanor", "ella", "violet", "abigail",
+      "sophie", "avery", "scarlett", "emily", "hazel", "aria", "penelope", "chloe", "layla", "mila",
+      "nora", "hazel", "madison", "ellie", "lily", "nova", "isla", "grace", "violet", "aurora", "riley",
+      "zoey", "willow", "emilia", "stella", "zoe", "victoria", "hannah", "addison", "leah", "lucy",
+      "eliana", "ivy", "everly", "lillian", "paisley", "elena", "naomi", "maya", "natalie", "kinsley",
+      "delilah", "claire", "audrey", "aaliyah", "ruby", "brooklyn", "alice", "aubrey", "autumn", "leilani",
+      "savannah", "valentina", "kennedy", "madelyn", "skylar", "hailey", "serenity", "caroline", "allison",
+      "gabriella", "anna", "sarah", "cora", "sadie", "piper", "piper", "lydia", "alexa", "josephine"
+    ]);
+
+    // Student Gender Map: Name -> 'male' | 'female' | 'unspecified'
+    let studentGenderMap = {};
+
+    // --- Gender Auto-Detection ---
+    function autoDetectGender(name) {
+      const firstName = name.trim().split(/\s+/)[0].toLowerCase();
+      if (MALE_NAMES.has(firstName)) return 'male';
+      if (FEMALE_NAMES.has(firstName)) return 'female';
+      
+      // Basic morphological heuristics
+      if (firstName.endsWith('a') || firstName.endsWith('ette') || firstName.endsWith('ina')) return 'female';
+      if (firstName.endsWith('son') || firstName.endsWith('or') || firstName.endsWith('us')) return 'male';
+      
+      return 'unspecified';
+    }
+
+    function syncGenderMap(students) {
+      const newMap = {};
+      students.forEach(student => {
+        if (studentGenderMap[student]) {
+          newMap[student] = studentGenderMap[student];
+        } else {
+          newMap[student] = autoDetectGender(student);
+        }
+      });
+      studentGenderMap = newMap;
+      renderGenderEditor();
+    }
+
+    function onStudentInput() {
+      const rawInput = document.getElementById('studentList').value;
+      const students = parseStudentNames(rawInput);
+      syncGenderMap(students);
+    }
+
+    function toggleGenderEditor() {
+      const panel = document.getElementById('genderEditorPanel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+      renderGenderEditor();
+    }
+
+    function renderGenderEditor() {
+      const container = document.getElementById('genderTagContainer');
+      const rawInput = document.getElementById('studentList').value;
+      const students = parseStudentNames(rawInput);
+
+      if (students.length === 0) {
+        container.innerHTML = '<span style="color:var(--text-muted); font-size:0.85rem;">No students entered yet.</span>';
+        return;
+      }
+
+      let html = '';
+      students.forEach(student => {
+        const gender = studentGenderMap[student] || 'unspecified';
+        let symbol = '⚧';
+        if (gender === 'male') symbol = '♂';
+        if (gender === 'female') symbol = '♀';
+
+        html += `
+          <div class="gender-tag ${gender}" onclick="cycleGender('${escapeHtml(student)}')">
+            <span>${symbol}</span>
+            <span>${escapeHtml(student)}</span>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function cycleGender(student) {
+      const current = studentGenderMap[student] || 'unspecified';
+      const next = current === 'male' ? 'female' : current === 'female' ? 'unspecified' : 'male';
+      studentGenderMap[student] = next;
+      renderGenderEditor();
+    }
+
     // --- Theme Logic ---
     function initTheme() {
       const savedTheme = localStorage.getItem('theme');
@@ -458,7 +660,6 @@
         .filter(s => s.length > 0);
     }
 
-    // Hash function generating vibrant neon HSL colors per student
     function stringToColor(str) {
       let hash = 0;
       for (let i = 0; i < str.length; i++) {
@@ -498,7 +699,15 @@
       const classes = getSavedClasses();
 
       if (className && classes[className]) {
-        document.getElementById('studentList').value = classes[className].join(', ');
+        const data = classes[className];
+        if (Array.isArray(data)) {
+          document.getElementById('studentList').value = data.join(', ');
+          syncGenderMap(data);
+        } else if (data.students) {
+          document.getElementById('studentList').value = data.students.join(', ');
+          studentGenderMap = data.genders || {};
+          syncGenderMap(data.students);
+        }
       }
       toggleActionButtons();
     }
@@ -522,7 +731,10 @@
         return;
       }
 
-      classes[trimmedName] = students;
+      classes[trimmedName] = {
+        students: students,
+        genders: studentGenderMap
+      };
       localStorage.setItem('classRosters', JSON.stringify(classes));
 
       renderClassDropdown();
@@ -541,7 +753,10 @@
       const students = parseStudentNames(text);
 
       const classes = getSavedClasses();
-      classes[className] = students;
+      classes[className] = {
+        students: students,
+        genders: studentGenderMap
+      };
       localStorage.setItem('classRosters', JSON.stringify(classes));
 
       alert(`Updated "${className}".`);
@@ -559,7 +774,9 @@
         localStorage.setItem('classRosters', JSON.stringify(classes));
 
         document.getElementById('studentList').value = '';
+        studentGenderMap = {};
         renderClassDropdown();
+        renderGenderEditor();
       }
     }
 
@@ -612,22 +829,40 @@
         return;
       }
 
-      const shuffled = shuffle(students);
-      let groups = [];
+      syncGenderMap(students);
+      const balanceGender = document.getElementById('balanceGenders').checked;
 
-      if (mode === 'numGroups') {
-        const numGroups = Math.min(targetVal, shuffled.length);
-        for (let i = 0; i < numGroups; i++) {
-          groups.push([]);
-        }
+      let groups = [];
+      let numGroups = targetVal;
+
+      if (mode === 'groupSize') {
+        numGroups = Math.max(1, Math.ceil(students.length / targetVal));
+      } else {
+        numGroups = Math.min(targetVal, students.length);
+      }
+
+      for (let i = 0; i < numGroups; i++) {
+        groups.push([]);
+      }
+
+      if (balanceGender) {
+        // Stratified round-robin distribution by gender category
+        const males = shuffle(students.filter(s => (studentGenderMap[s] || 'unspecified') === 'male'));
+        const females = shuffle(students.filter(s => (studentGenderMap[s] || 'unspecified') === 'female'));
+        const unspecified = shuffle(students.filter(s => (studentGenderMap[s] || 'unspecified') === 'unspecified'));
+
+        let groupIdx = 0;
+        [males, females, unspecified].forEach(categoryList => {
+          categoryList.forEach(student => {
+            groups[groupIdx % numGroups].push(student);
+            groupIdx++;
+          });
+        });
+      } else {
+        const shuffled = shuffle(students);
         shuffled.forEach((student, index) => {
           groups[index % numGroups].push(student);
         });
-      } else {
-        const groupSize = targetVal;
-        for (let i = 0; i < shuffled.length; i += groupSize) {
-          groups.push(shuffled.slice(i, i + groupSize));
-        }
       }
 
       renderGroups(groups);
@@ -651,10 +886,20 @@
             <ul>
               ${group.map(student => {
                 const color = stringToColor(`${currentClass}:${student.toLowerCase()}`);
+                const gender = studentGenderMap[student] || 'unspecified';
+                let icon = '⚧';
+                if (gender === 'male') icon = '♂';
+                if (gender === 'female') icon = '♀';
+
                 return `
                   <li class="student-badge" style="border-left-color: ${color}; box-shadow: -2px 0 8px${color};">
-                    <span class="student-color-dot" style="background-color: ${color}; color:${color};"></span>
-                    <span>${escapeHtml(student)}</span>
+                    <div class="student-info">
+                      <span class="student-color-dot" style="background-color: ${color}; color:${color};"></span>
+                      <span>${escapeHtml(student)}</span>
+                    </div>
+                    <span class="gender-icon" style="color: var(--${gender === 'male' ? 'male-color' : gender === 'female' ? 'female-color' : 'neutral-color'});">
+                      ${icon}
+                    </span>
                   </li>
                 `;
               }).join('')}
@@ -686,7 +931,7 @@
       let text = '';
       groupCards.forEach(card => {
         const title = card.querySelector('h3').innerText;
-        const members = Array.from(card.querySelectorAll('.student-badge span:last-child')).map(span => `- ${span.innerText}`).join('\n');
+        const members = Array.from(card.querySelectorAll('.student-badge .student-info span:last-child')).map(span => `- ${span.innerText}`).join('\n');
         text += `${title}\n${members}\n\n`;
       });
 
