@@ -22,9 +22,6 @@
       --radius: 12px;
       --grid-color: rgba(255, 113, 206, 0.15);
       --glow: 0 0 12px rgba(255, 113, 206, 0.6);
-      --male-color: #01cdfe;
-      --female-color: #ff71ce;
-      --neutral-color: #05ffa1;
       --matrix-zero-bg: rgba(185, 174, 217, 0.10);
 
       --page-max: 1800px;
@@ -48,9 +45,6 @@
       --danger: #e60039;
       --grid-color: rgba(217, 0, 143, 0.12);
       --glow: 0 0 10px rgba(217, 0, 143, 0.3);
-      --male-color: #0077ff;
-      --female-color: #d9008f;
-      --neutral-color: #00b874;
       --matrix-zero-bg: rgba(107, 82, 132, 0.10);
     }
 
@@ -253,7 +247,7 @@
       transition: all 0.2s;
     }
 
-    textarea { resize: vertical; min-height: 140px; }
+    textarea { resize: vertical; min-height: 110px; }
 
     textarea:focus, input:focus, select:focus {
       border-color: var(--accent);
@@ -284,18 +278,6 @@
       font-weight: 600;
       cursor: pointer;
       color: var(--text);
-    }
-
-    .checkbox-label {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      font-weight: 700;
-      cursor: pointer;
-      color: var(--accent);
-      text-transform: uppercase;
-      font-size: 0.95rem;
-      margin-top: 0.5rem;
     }
 
     .btn {
@@ -367,25 +349,49 @@
     .group-preview .preview-warn { color: var(--danger); font-weight: 700; }
     .group-preview .preview-icon { margin-right: 0.35rem; }
 
-    /* ===== Student Roster Manager ===== */
-    .student-manager-header {
+    /* ===== Roster Manager (always visible) ===== */
+    .roster-panel {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.6rem;
+      margin-top: 0.4rem;
+    }
+
+    .roster-toolbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 0.5rem;
       flex-wrap: wrap;
-      margin-top: 0.75rem;
-      margin-bottom: 0.4rem;
-      font-size: 0.8rem;
+      margin-bottom: 0.55rem;
+      padding: 0 0.15rem;
+    }
+    .roster-toolbar .roster-summary {
+      font-size: 0.78rem;
       font-weight: 700;
       color: var(--text-muted);
+      text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    .student-manager-header #studentManagerSummary { text-transform: uppercase; }
+    .roster-toolbar .roster-active-label {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--secondary);
+      text-transform: none;
+      letter-spacing: 0;
+      margin-top: 0.1rem;
+      font-weight: 600;
+      opacity: 0.85;
+    }
 
-    .student-manager-bulk { display: flex; gap: 0.35rem; }
-    .student-manager-bulk .row-toggle {
-      padding: 0.15rem 0.55rem;
+    .roster-toolbar-actions {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+    }
+    .roster-toolbar-actions .row-toggle {
+      padding: 0.2rem 0.6rem;
       border-radius: 12px;
       font-size: 0.7rem;
       font-weight: 700;
@@ -396,47 +402,65 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
       transition: all 0.15s;
+      font-family: inherit;
     }
-    .student-manager-bulk .row-toggle:hover {
+    .roster-toolbar-actions .row-toggle:hover {
       border-color: var(--accent);
       color: var(--accent);
       box-shadow: 0 0 8px var(--accent);
     }
+    .roster-toolbar-actions .row-toggle.primary {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .roster-toolbar-actions .row-toggle.primary:hover {
+      background: var(--accent);
+      color: var(--bg);
+    }
+    .roster-toolbar-actions .row-toggle.danger {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+    .roster-toolbar-actions .row-toggle.danger:hover {
+      background: var(--danger);
+      color: #ffffff;
+    }
 
     .student-manager {
-      background: var(--input-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.5rem;
-      max-height: clamp(260px, 42vh, 560px);
-      overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 0.35rem;
+      gap: 0.3rem;
+      max-height: clamp(240px, 38vh, 500px);
+      overflow-y: auto;
+      padding-right: 0.1rem;
     }
+
     .student-manager .empty-msg {
       color: var(--text-muted);
       font-size: 0.85rem;
-      padding: 0.75rem;
+      padding: 1rem 0.75rem;
       text-align: center;
+      font-style: italic;
     }
 
     .student-row {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.4rem 0.5rem;
+      gap: 0.4rem;
+      padding: 0.3rem 0.4rem;
       background: rgba(13, 2, 33, 0.35);
       border: 1px solid transparent;
       border-radius: 6px;
       font-size: 0.9rem;
       font-weight: 700;
-      transition: opacity 0.15s, background-color 0.15s;
+      transition: opacity 0.15s, background-color 0.15s, border-color 0.15s;
     }
     [data-theme="light"] .student-row { background: rgba(0, 0, 0, 0.03); }
 
-    .student-row.excluded { opacity: 0.42; }
-    .student-row.excluded .row-name {
+    .student-row.excluded {
+      opacity: 0.45;
+    }
+    .student-row.excluded .row-name-input {
       text-decoration: line-through;
       text-decoration-thickness: 2px;
     }
@@ -448,42 +472,37 @@
       flex-shrink: 0;
       box-shadow: 0 0 6px currentColor, inset 0 0 2px rgba(255,255,255,0.6);
     }
-    .row-name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 
-    .row-gender {
-      padding: 0.15rem 0.5rem;
-      border-radius: 12px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      cursor: pointer;
-      border: 1px solid;
-      user-select: none;
-      transition: all 0.15s;
-      flex-shrink: 0;
+    .row-name-input {
+      flex: 1;
+      min-width: 0;
       background: transparent;
-      font-family: inherit;
+      border: 1px solid transparent;
+      color: var(--text);
+      font: inherit;
+      font-weight: 700;
+      padding: 0.25rem 0.4rem;
+      border-radius: 4px;
+      outline: none;
+      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
     }
-    .row-gender:hover { transform: scale(1.08); }
-    .row-gender.male {
-      color: var(--male-color);
-      border-color: var(--male-color);
-      background: rgba(1, 205, 254, 0.15);
+    .row-name-input:hover {
+      border-color: var(--border);
     }
-    .row-gender.female {
-      color: var(--female-color);
-      border-color: var(--female-color);
-      background: rgba(255, 113, 206, 0.15);
+    .row-name-input:focus {
+      background: var(--input-bg);
+      border-color: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
     }
-    .row-gender.unspecified {
-      color: var(--neutral-color);
-      border-color: var(--neutral-color);
-      background: rgba(5, 255, 161, 0.15);
+    .row-name-input::selection {
+      background: var(--accent);
+      color: var(--bg);
     }
 
     .row-toggle {
       padding: 0.15rem 0.55rem;
       border-radius: 12px;
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 700;
       cursor: pointer;
       border: 1px solid var(--accent);
@@ -494,7 +513,7 @@
       transition: all 0.15s;
       flex-shrink: 0;
       font-family: inherit;
-      min-width: 70px;
+      min-width: 68px;
     }
     .row-toggle:hover {
       background: var(--accent);
@@ -509,6 +528,31 @@
       background: var(--danger);
       color: #ffffff;
       box-shadow: 0 0 8px var(--danger);
+    }
+
+    .row-delete {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      padding: 0;
+      transition: all 0.15s;
+      font-family: inherit;
+      line-height: 1;
+    }
+    .row-delete:hover {
+      border-color: var(--danger);
+      color: var(--danger);
+      background: rgba(255, 82, 119, 0.12);
     }
 
     /* ===== Results Grid ===== */
@@ -606,9 +650,7 @@
     }
 
     /* ========== Pairing History Tab ========== */
-    .history-panel {
-      padding: clamp(1.25rem, 2vw, 2rem);
-    }
+    .history-panel { padding: clamp(1.25rem, 2vw, 2rem); }
 
     .history-header {
       display: flex;
@@ -715,7 +757,6 @@
       position: sticky;
       top: 0;
       z-index: 3;
-      /* Rotate column headers for a compact layout */
       writing-mode: vertical-rl;
       transform: rotate(180deg);
       padding: 0.6rem 0.35rem;
@@ -802,17 +843,15 @@
     .legend-swatch.l2 { background: rgba(255, 113, 206, 0.50); }
     .legend-swatch.l3 { background: rgba(255, 113, 206, 0.70); }
     .legend-swatch.l4 { background: rgba(255, 113, 206, 0.90); }
-    .legend-swatch.zero-label { background: transparent; border: 1px dashed var(--border); }
 
     @media (min-width: 1600px) {
       .groups-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
-      .student-manager { max-height: clamp(300px, 50vh, 640px); }
+      .student-manager { max-height: clamp(300px, 45vh, 600px); }
     }
 
     @media (max-width: 480px) {
       header h1 { letter-spacing: 0; }
-      .row-gender { min-width: 34px; padding: 0.15rem 0.35rem; }
-      .row-toggle { min-width: 62px; }
+      .row-toggle { min-width: 60px; padding: 0.15rem 0.45rem; }
       .pairing-matrix th { font-size: 0.65rem; }
     }
   </style>
@@ -844,7 +883,7 @@
           <div class="form-group">
             <label for="classSelect">Saved Rosters:</label>
             <select id="classSelect" onchange="loadClass()">
-              <option value="">-- Select Class --</option>
+              <option value="">-- Unsaved (Scratch) --</option>
             </select>
             <div class="row-btn-group" id="classActionButtons" style="display: none;">
               <button class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem;" onclick="updateClass()" type="button">Update Roster</button>
@@ -854,39 +893,38 @@
 
           <div class="divider"></div>
 
+          <!-- Roster Manager (always visible, editable) -->
           <div class="form-group">
-            <label for="studentList">Student Names:</label>
+            <label>Roster Manager:</label>
+            <div class="roster-panel">
+              <div class="roster-toolbar">
+                <div>
+                  <span class="roster-summary" id="studentManagerSummary">0 of 0 included</span>
+                  <span class="roster-active-label" id="activeRosterLabel">Editing: Unsaved (Scratch)</span>
+                </div>
+                <div class="roster-toolbar-actions">
+                  <button class="row-toggle primary" onclick="addStudent()" type="button">+ Add</button>
+                  <button class="row-toggle" onclick="includeAllStudents()" type="button">Include All</button>
+                  <button class="row-toggle danger" onclick="excludeAllStudents()" type="button">Exclude All</button>
+                </div>
+              </div>
+              <div class="student-manager" id="studentManagerContainer"></div>
+            </div>
+            <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.45rem; text-align: center;">
+              Edit names directly · Click <strong>Include</strong>/<strong>Excluded</strong> to control group membership · Click ✕ to remove
+            </p>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Advanced: bulk text input (collapsible) -->
+          <div class="form-group">
+            <label for="studentList">Bulk Edit (comma or newline separated):</label>
             <textarea id="studentList" placeholder="Liam, Olivia, Noah, Emma, Oliver, Charlotte&#10;James, Amelia, Elijah, Sophia" oninput="onStudentInput()"></textarea>
             
             <div class="row-btn-group">
               <button class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem;" onclick="saveNewClass()" type="button">💾 Save Class Roster</button>
             </div>
-          </div>
-
-          <!-- Student Roster Manager -->
-          <div class="form-group">
-            <label>Roster Manager:</label>
-            <button class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem;" onclick="toggleStudentManager()" type="button" id="studentManagerToggleBtn">
-              🎨 Review Colors • Gender • Inclusion
-            </button>
-            
-            <div id="studentManagerPanel" style="display: none;">
-              <div class="student-manager-header">
-                <span id="studentManagerSummary">0 of 0 included</span>
-                <div class="student-manager-bulk">
-                  <button class="row-toggle" onclick="includeAllStudents()" type="button">Include All</button>
-                  <button class="row-toggle" onclick="excludeAllStudents()" type="button">Exclude All</button>
-                </div>
-              </div>
-              <div class="student-manager" id="studentManagerContainer"></div>
-              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; text-align: center;">
-                Click the gender badge to cycle ♂ → ♀ → ⚧. Click <strong>Include</strong> / <strong>Excluded</strong> to control who joins the groups.
-              </p>
-            </div>
-
-            <label class="checkbox-label">
-              <input type="checkbox" id="balanceGenders" checked> Balance Genders Across Groups
-            </label>
           </div>
 
           <div class="divider"></div>
@@ -924,7 +962,7 @@
 
           <div id="resultsContainer">
             <div class="card empty-state">
-              <p>Load a roster or enter student names, then hit <strong>GENERATE GROUPS</strong>.</p>
+              <p>Add or load students, then hit <strong>GENERATE GROUPS</strong>.</p>
             </div>
           </div>
         </div>
@@ -939,7 +977,7 @@
             <h2>PAIRING MATRIX</h2>
             <p class="history-subtitle">
               How often each pair has been grouped together —
-              <span class="history-scope" id="historyScopeLabel">default roster</span>
+              <span class="history-scope" id="historyScopeLabel">Unsaved (Scratch)</span>
             </p>
           </div>
           <div class="history-actions">
@@ -1005,70 +1043,22 @@
       document.querySelectorAll('.tab-panel').forEach(panel => {
         panel.style.display = panel.id === 'tab-' + name ? 'block' : 'none';
       });
-      if (name === 'history') {
-        renderPairingMatrix();
-      }
-      // Scroll to top so tab content is visible immediately
+      if (name === 'history') renderPairingMatrix();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // ============================================================
-    // BUILT-IN NAME DICTIONARIES FOR GENDER DETECTION
+    // STATE
     // ============================================================
-    const MALE_NAMES = new Set([
-      "liam", "noah", "oliver", "james", "elijah", "william", "henry", "lucas", "benjamin", "theodore",
-      "mateo", "levi", "sebastian", "daniel", "jack", "alexander", "owen", "asher", "samuel", "ethan",
-      "leo", "jackson", "mason", "ezra", "john", "hudson", "luca", "david", "joseph", "julian", "luke",
-      "waylon", "isaac", "jayden", "thomas", "anthony", "dylan", "lincoln", "charles", "christopher",
-      "jaxon", "maverick", "josiah", "isaiah", "andrew", "elias", "joshua", "nathan", "caleb", "ryan",
-      "adrian", "miles", "eli", "nolan", "christian", "aaron", "cameron", "ezekiel", "colton",
-      "landon", "hunter", "jonathan", "santiago", "axel", "easton", "cooper", "jeremiah", "angel", "roman",
-      "connor", "jameson", "robert", "greyson", "jordan", "ian", "carson", "jaxson", "leonardo", "nicholas",
-      "dominic", "austin", "everett", "brooks", "xavier", "kai", "jose", "parker", "adam", "jace"
-    ]);
-
-    const FEMALE_NAMES = new Set([
-      "olivia", "emma", "charlotte", "amelia", "sophia", "mia", "isabella", "ava", "evelyn", "elena",
-      "harper", "luna", "camila", "gianna", "elizabeth", "eleanor", "ella", "violet", "abigail",
-      "sophie", "avery", "scarlett", "emily", "hazel", "aria", "penelope", "chloe", "layla", "mila",
-      "nora", "madison", "ellie", "lily", "nova", "isla", "grace", "aurora", "riley",
-      "zoey", "willow", "emilia", "stella", "zoe", "victoria", "hannah", "addison", "leah", "lucy",
-      "eliana", "ivy", "everly", "lillian", "paisley", "naomi", "maya", "natalie", "kinsley",
-      "delilah", "claire", "audrey", "aaliyah", "ruby", "brooklyn", "alice", "aubrey", "autumn", "leilani",
-      "savannah", "valentina", "kennedy", "madelyn", "skylar", "hailey", "serenity", "caroline", "allison",
-      "gabriella", "anna", "sarah", "cora", "sadie", "piper", "lydia", "alexa", "josephine"
-    ]);
-
-    const HEURISTIC_OVERRIDES = {
-      "mika": "male", "josh": "male", "luca": "male", "nikola": "male",
-      "madison": "female", "allison": "female", "addison": "female", "emerson": "unspecified",
-      "taylor": "unspecified", "jordan": "unspecified",
-      "casey": "unspecified", "riley": "unspecified", "avery": "unspecified", "quinn": "unspecified"
-    };
-
-    let studentGenderMap = {};
     let excludedStudents = new Set();
 
-    function autoDetectGender(name) {
-      const firstName = name.trim().split(/\s+/)[0].toLowerCase();
-      if (MALE_NAMES.has(firstName)) return 'male';
-      if (FEMALE_NAMES.has(firstName)) return 'female';
-      if (HEURISTIC_OVERRIDES[firstName]) return HEURISTIC_OVERRIDES[firstName];
-
-      if (firstName.endsWith('ette') || firstName.endsWith('ina') || firstName.endsWith('ella')) return 'female';
-      if (firstName.endsWith('son') && firstName.length > 4) return 'male';
-
-      return 'unspecified';
-    }
-
-    function syncGenderMap(students) {
-      const newMap = {};
+    // ============================================================
+    // ROSTER STATE SYNC
+    // ============================================================
+    function syncRosterState(students) {
       const studentSet = new Set(students);
-      students.forEach(student => {
-        newMap[student] = studentGenderMap[student] || autoDetectGender(student);
-      });
-      studentGenderMap = newMap;
 
+      // Drop exclusions for students no longer in the roster
       const newExcluded = new Set();
       excludedStudents.forEach(name => {
         if (studentSet.has(name)) newExcluded.add(name);
@@ -1077,6 +1067,7 @@
 
       renderStudentManager();
       updateGroupPreview();
+      updateActiveRosterLabel();
     }
 
     let inputDebounceTimer = null;
@@ -1084,7 +1075,7 @@
       clearTimeout(inputDebounceTimer);
       inputDebounceTimer = setTimeout(() => {
         const students = parseStudentNames(document.getElementById('studentList').value);
-        syncGenderMap(students);
+        syncRosterState(students);
       }, 150);
     }
 
@@ -1114,7 +1105,7 @@
 
       if (allStudents.length === 0) {
         previewEl.className = 'group-preview empty';
-        previewEl.textContent = 'Enter student names to see a preview.';
+        previewEl.textContent = 'Add students to see a preview.';
         return;
       }
 
@@ -1162,13 +1153,13 @@
     }
 
     // ============================================================
-    // STUDENT ROSTER MANAGER
+    // ROSTER MANAGER (always visible, inline editable)
     // ============================================================
-    function toggleStudentManager() {
-      const panel = document.getElementById('studentManagerPanel');
-      const isHidden = panel.style.display === 'none';
-      panel.style.display = isHidden ? 'block' : 'none';
-      if (isHidden) renderStudentManager();
+    function updateActiveRosterLabel() {
+      const label = document.getElementById('activeRosterLabel');
+      if (!label) return;
+      const name = document.getElementById('classSelect').value;
+      label.textContent = 'Editing: ' + (name || 'Unsaved (Scratch)');
     }
 
     function renderStudentManager() {
@@ -1178,7 +1169,7 @@
       const currentClass = document.getElementById('classSelect').value || 'default';
 
       if (students.length === 0) {
-        container.innerHTML = '<div class="empty-msg">No students entered yet.</div>';
+        container.innerHTML = '<div class="empty-msg">No students yet. Click <strong>+ Add</strong> or paste names into the bulk editor below.</div>';
         if (summary) summary.textContent = '0 of 0 included';
         return;
       }
@@ -1187,28 +1178,37 @@
       if (summary) summary.textContent = `${includedCount} of ${students.length} included`;
 
       container.innerHTML = students.map((student, index) => {
-        const gender = studentGenderMap[student] || 'unspecified';
-        const symbol = gender === 'male' ? '♂' : gender === 'female' ? '♀' : '⚧';
         const color = stringToColor(`${currentClass}:${student.toLowerCase()}`);
         const isExcluded = excludedStudents.has(student);
 
         return `
           <div class="student-row ${isExcluded ? 'excluded' : ''}" data-index="${index}">
             <span class="row-color-dot" style="background-color: ${color}; color: ${color};" title="Assigned color: ${escapeHtml(color)}"></span>
-            <span class="row-name">${escapeHtml(student)}</span>
-            <button class="row-gender ${gender}" data-action="cycle-gender" type="button" title="Click to cycle: male → female → unspecified">
-              ${symbol}
-            </button>
+            <input
+              type="text"
+              class="row-name-input"
+              data-index="${index}"
+              value="${escapeHtml(student)}"
+              spellcheck="false"
+              autocomplete="off"
+            >
             <button class="row-toggle" data-action="toggle-inclusion" type="button" title="Toggle whether this student joins the groups">
               ${isExcluded ? 'Excluded' : 'Include'}
             </button>
+            <button class="row-delete" data-action="delete-student" type="button" title="Remove this student from the roster">✕</button>
           </div>
         `;
       }).join('');
     }
 
+    // ============================================================
+    // ROSTER MANAGER EVENT DELEGATION
+    // ============================================================
     document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('studentManagerContainer').addEventListener('click', (event) => {
+      const container = document.getElementById('studentManagerContainer');
+
+      // Button clicks (include/exclude toggle + delete)
+      container.addEventListener('click', (event) => {
         const button = event.target.closest('[data-action]');
         if (!button) return;
         const row = button.closest('.student-row');
@@ -1217,28 +1217,99 @@
         if (Number.isNaN(index)) return;
 
         const action = button.dataset.action;
-        if (action === 'cycle-gender') cycleGenderByIndex(index);
-        else if (action === 'toggle-inclusion') toggleInclusionByIndex(index);
+        if (action === 'toggle-inclusion') toggleInclusionByIndex(index);
+        else if (action === 'delete-student') deleteStudentByIndex(index);
       });
 
+      // Live typing in name input → update color dot only (no re-render, keeps focus)
+      container.addEventListener('input', (event) => {
+        const input = event.target.closest('.row-name-input');
+        if (!input) return;
+        handleNameLiveUpdate(input);
+      });
+
+      // Commit (blur or Enter) → update the underlying data
+      container.addEventListener('change', (event) => {
+        const input = event.target.closest('.row-name-input');
+        if (!input) return;
+        handleNameCommit(input);
+      });
+
+      // Pressing Enter should commit + blur
+      container.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && event.target.classList.contains('row-name-input')) {
+          event.preventDefault();
+          event.target.blur();
+        }
+      });
+
+      // Preview inputs
       document.getElementById('numberInput').addEventListener('input', updateGroupPreview);
       document.querySelectorAll('input[name="mode"]').forEach(radio => {
         radio.addEventListener('change', updateGroupPreview);
       });
-      document.getElementById('balanceGenders').addEventListener('change', updateGroupPreview);
 
       updateGroupPreview();
+      updateActiveRosterLabel();
+      renderStudentManager();
     });
 
-    function cycleGenderByIndex(index) {
-      const students = parseStudentNames(document.getElementById('studentList').value);
-      const student = students[index];
-      if (!student) return;
+    function handleNameLiveUpdate(inputEl) {
+      const index = parseInt(inputEl.dataset.index, 10);
+      if (Number.isNaN(index)) return;
 
-      const current = studentGenderMap[student] || 'unspecified';
-      const next = current === 'male' ? 'female' : current === 'female' ? 'unspecified' : 'male';
-      studentGenderMap[student] = next;
-      renderStudentManager();
+      const currentClass = document.getElementById('classSelect').value || 'default';
+      const newColor = stringToColor(`${currentClass}:${inputEl.value.trim().toLowerCase()}`);
+      const row = inputEl.closest('.student-row');
+      const dot = row.querySelector('.row-color-dot');
+      if (dot) {
+        dot.style.background = newColor;
+        dot.style.color = newColor;
+        dot.title = 'Assigned color: ' + newColor;
+      }
+    }
+
+    function handleNameCommit(inputEl) {
+      const index = parseInt(inputEl.dataset.index, 10);
+      if (Number.isNaN(index)) return;
+
+      const students = parseStudentNames(document.getElementById('studentList').value);
+      const oldName = students[index];
+      if (oldName === undefined) return;
+
+      const newName = inputEl.value.trim();
+
+      // Empty name not allowed — revert
+      if (!newName) {
+        inputEl.value = oldName;
+        return;
+      }
+
+      // No change — normalize input value just in case (e.g. trailing spaces)
+      if (newName === oldName) {
+        inputEl.value = newName;
+        return;
+      }
+
+      // Update the underlying roster
+      students[index] = newName;
+      document.getElementById('studentList').value = students.join(', ');
+
+      // Transfer exclusion state to the new name
+      if (excludedStudents.has(oldName)) {
+        excludedStudents.delete(oldName);
+        excludedStudents.add(newName);
+      }
+
+      // Migrate pairing history so old name doesn't linger as a ghost student
+      migratePairingHistory(getHistoryScopeName(), oldName, newName);
+
+      // Normalize input display
+      inputEl.value = newName;
+
+      updateGroupPreview();
+      updateActiveRosterLabel();
+      if (activeTab === 'history') renderPairingMatrix();
     }
 
     function toggleInclusionByIndex(index) {
@@ -1248,8 +1319,58 @@
 
       if (excludedStudents.has(student)) excludedStudents.delete(student);
       else excludedStudents.add(student);
+
       renderStudentManager();
       updateGroupPreview();
+    }
+
+    function deleteStudentByIndex(index) {
+      const students = parseStudentNames(document.getElementById('studentList').value);
+      const student = students[index];
+      if (!student) return;
+
+      students.splice(index, 1);
+      document.getElementById('studentList').value = students.join(', ');
+
+      // Remove from exclusions (but keep pairing history — it's still useful
+      // and the student may be re-added later)
+      excludedStudents.delete(student);
+
+      renderStudentManager();
+      updateGroupPreview();
+      updateActiveRosterLabel();
+    }
+
+    function addStudent() {
+      const students = parseStudentNames(document.getElementById('studentList').value);
+
+      // Generate a unique placeholder name
+      let placeholder = 'New Student';
+      if (students.includes(placeholder)) {
+        let i = 2;
+        while (students.includes(`${placeholder} ${i}`)) i++;
+        placeholder = `${placeholder} ${i}`;
+      }
+
+      students.push(placeholder);
+      document.getElementById('studentList').value = students.join(', ');
+
+      renderStudentManager();
+      updateGroupPreview();
+
+      // Focus and select the new row's input so the user can just type
+      requestAnimationFrame(() => {
+        const rows = document.querySelectorAll('#studentManagerContainer .student-row');
+        const lastRow = rows[rows.length - 1];
+        if (!lastRow) return;
+        const input = lastRow.querySelector('.row-name-input');
+        if (input) {
+          input.focus();
+          input.select();
+          // Scroll into view within the roster panel
+          input.scrollIntoView({ block: 'nearest' });
+        }
+      });
     }
 
     function includeAllStudents() {
@@ -1284,7 +1405,6 @@
       localStorage.setItem('theme', newTheme);
       updateThemeButton(!isLight);
 
-      // Re-render matrix since it uses theme-aware colors
       if (activeTab === 'history') renderPairingMatrix();
     }
 
@@ -1344,7 +1464,7 @@
       const select = document.getElementById('classSelect');
       const currentSelection = select.value;
 
-      select.innerHTML = '<option value="">-- Select Class --</option>';
+      select.innerHTML = '<option value="">-- Unsaved (Scratch) --</option>';
       Object.keys(classes).sort().forEach(className => {
         const option = document.createElement('option');
         option.value = className;
@@ -1354,6 +1474,7 @@
 
       if (classes[currentSelection]) select.value = currentSelection;
       toggleActionButtons();
+      updateActiveRosterLabel();
     }
 
     function loadClass() {
@@ -1366,23 +1487,21 @@
         let students = [];
         if (Array.isArray(data)) {
           students = data;
-          document.getElementById('studentList').value = students.join(', ');
-          studentGenderMap = {};
           excludedStudents = new Set();
-          syncGenderMap(students);
         } else if (data.students) {
           students = data.students;
-          document.getElementById('studentList').value = students.join(', ');
-          studentGenderMap = data.genders || {};
           excludedStudents = new Set(data.excluded || []);
-          syncGenderMap(students);
         }
+        document.getElementById('studentList').value = students.join(', ');
+        syncRosterState(students);
       } else {
+        // Deselected → reset exclusions for the scratch roster
         excludedStudents = new Set();
+        renderStudentManager();
+        updateGroupPreview();
       }
       toggleActionButtons();
-      renderStudentManager();
-      updateGroupPreview();
+      updateActiveRosterLabel();
       if (activeTab === 'history') renderPairingMatrix();
     }
 
@@ -1391,7 +1510,7 @@
       const students = parseStudentNames(text);
 
       if (students.length === 0) {
-        alert('Please enter student names before saving.');
+        alert('Please add student names before saving.');
         return;
       }
 
@@ -1405,7 +1524,6 @@
 
       classes[trimmedName] = {
         students: students,
-        genders: studentGenderMap,
         excluded: Array.from(excludedStudents)
       };
       localStorage.setItem('classRosters', JSON.stringify(classes));
@@ -1413,7 +1531,7 @@
       renderClassDropdown();
       document.getElementById('classSelect').value = trimmedName;
       toggleActionButtons();
-      renderStudentManager();
+      updateActiveRosterLabel();
       alert(`Roster "${trimmedName}" saved!`);
     }
 
@@ -1427,7 +1545,6 @@
       const classes = getSavedClasses();
       classes[className] = {
         students: students,
-        genders: studentGenderMap,
         excluded: Array.from(excludedStudents)
       };
       localStorage.setItem('classRosters', JSON.stringify(classes));
@@ -1445,14 +1562,13 @@
         localStorage.setItem('classRosters', JSON.stringify(classes));
 
         document.getElementById('studentList').value = '';
-        studentGenderMap = {};
         excludedStudents = new Set();
         renderClassDropdown();
         renderStudentManager();
         updateGroupPreview();
 
         document.getElementById('resultsContainer').innerHTML =
-          '<div class="card empty-state"><p>Load a roster or enter student names, then hit <strong>GENERATE GROUPS</strong>.</p></div>';
+          '<div class="card empty-state"><p>Add or load students, then hit <strong>GENERATE GROUPS</strong>.</p></div>';
         document.getElementById('actionsBar').style.display = 'none';
       }
     }
@@ -1466,9 +1582,9 @@
     renderClassDropdown();
 
     // ============================================================
-    // PAIRING HISTORY (persistence + recording)
+    // PAIRING HISTORY (persistence + recording + rename migration)
     // ============================================================
-    const PAIR_SEP = '\x1f'; // unit separator — practically never appears in real names
+    const PAIR_SEP = '\x1f';
 
     function pairKey(a, b) {
       return a < b ? a + PAIR_SEP + b : b + PAIR_SEP + a;
@@ -1512,9 +1628,37 @@
       localStorage.setItem('pairingHistory', JSON.stringify(history));
     }
 
+    function migratePairingHistory(className, oldName, newName) {
+      const history = getPairingHistory();
+      const entry = history[className];
+      if (!entry || !entry.pairs) return;
+
+      let changed = false;
+      const newPairs = {};
+
+      Object.keys(entry.pairs).forEach(key => {
+        const parts = key.split(PAIR_SEP);
+        if (parts.length !== 2) return;
+
+        let [a, b] = parts;
+        if (a === oldName) { a = newName; changed = true; }
+        if (b === oldName) { b = newName; changed = true; }
+
+        if (a === b) return; // self-pair — drop
+
+        const newKey = a < b ? a + PAIR_SEP + b : b + PAIR_SEP + a;
+        newPairs[newKey] = (newPairs[newKey] || 0) + entry.pairs[key];
+      });
+
+      if (changed) {
+        entry.pairs = newPairs;
+        localStorage.setItem('pairingHistory', JSON.stringify(history));
+      }
+    }
+
     function clearPairingHistory() {
       const className = getHistoryScopeName();
-      const label = document.getElementById('classSelect').value || 'default roster';
+      const label = document.getElementById('classSelect').value || 'Unsaved (Scratch)';
 
       if (!confirm(`Clear ALL pairing history for "${label}"?\n\nThis cannot be undone.`)) return;
 
@@ -1528,23 +1672,22 @@
     // PAIRING MATRIX RENDERING
     // ============================================================
     function heatColor(count, maxCount) {
-      if (count <= 0) return null; // caller uses .zero class
+      if (count <= 0) return null;
       const t = maxCount <= 1 ? 0.5 : (count - 1) / (maxCount - 1);
-      const alpha = 0.30 + t * 0.60; // 0.30 → 0.90
+      const alpha = 0.30 + t * 0.60;
       return `rgba(255, 113, 206, ${alpha.toFixed(3)})`;
     }
 
     function renderPairingMatrix() {
       const scopeLabel = document.getElementById('historyScopeLabel');
       const className = getHistoryScopeName();
-      const label = document.getElementById('classSelect').value || 'default roster';
+      const label = document.getElementById('classSelect').value || 'Unsaved (Scratch)';
       scopeLabel.textContent = label;
 
       const history = getPairingHistory();
       const entry = history[className] || { pairs: {}, generations: 0 };
       const pairs = entry.pairs || {};
 
-      // Students = union of current roster + anyone in the history for this scope
       const currentStudents = parseStudentNames(document.getElementById('studentList').value);
       const historicalNames = new Set();
       Object.keys(pairs).forEach(key => {
@@ -1558,7 +1701,6 @@
       const allStudents = Array.from(new Set([...currentStudents, ...historicalNames]))
         .sort((a, b) => a.localeCompare(b));
 
-      // --- Stats ---
       document.getElementById('historyGenCount').textContent = entry.generations || 0;
       document.getElementById('historyStudentCount').textContent = allStudents.length;
 
@@ -1581,7 +1723,6 @@
       document.getElementById('historyPairCount').textContent = totalPairings;
       document.getElementById('historyIsolatedCount').textContent = isolatedPairs;
 
-      // --- Table ---
       const table = document.getElementById('pairingMatrix');
 
       if (allStudents.length === 0) {
@@ -1610,14 +1751,12 @@
         return;
       }
 
-      // Build header row
       let html = '<thead><tr><th class="corner">Student</th>';
       allStudents.forEach(name => {
         html += `<th title="${escapeHtml(name)}">${escapeHtml(name)}</th>`;
       });
       html += '</tr></thead><tbody>';
 
-      // Build body rows
       allStudents.forEach((rowName, i) => {
         html += `<tr><th title="${escapeHtml(rowName)}">${escapeHtml(rowName)}</th>`;
         allStudents.forEach((colName, j) => {
@@ -1674,11 +1813,9 @@
       const allStudents = parseStudentNames(document.getElementById('studentList').value);
 
       if (allStudents.length === 0) {
-        alert('Please enter at least one student name.');
+        alert('Please add at least one student name.');
         return;
       }
-
-      syncGenderMap(allStudents);
 
       const students = allStudents.filter(s => !excludedStudents.has(s));
       const excludedCount = allStudents.length - students.length;
@@ -1696,8 +1833,6 @@
         return;
       }
 
-      const balanceGender = document.getElementById('balanceGenders').checked;
-
       const groups = [];
       let numGroups;
 
@@ -1709,31 +1844,16 @@
 
       for (let i = 0; i < numGroups; i++) groups.push([]);
 
-      if (balanceGender) {
-        const males = shuffle(students.filter(s => (studentGenderMap[s] || 'unspecified') === 'male'));
-        const females = shuffle(students.filter(s => (studentGenderMap[s] || 'unspecified') === 'female'));
-        const unspecified = shuffle(students.filter(s => (studentGenderMap[s] || 'unspecified') === 'unspecified'));
-
-        let groupIdx = 0;
-        [males, females, unspecified].forEach(categoryList => {
-          categoryList.forEach(student => {
-            groups[groupIdx % numGroups].push(student);
-            groupIdx++;
-          });
-        });
-      } else {
-        const shuffled = shuffle(students);
-        shuffled.forEach((student, index) => {
-          groups[index % numGroups].push(student);
-        });
-      }
+      const shuffled = shuffle(students);
+      shuffled.forEach((student, index) => {
+        groups[index % numGroups].push(student);
+      });
 
       // Record this generation into the pairing history
       recordPairings(getHistoryScopeName(), groups);
 
       renderGroups(groups, { excludedCount, totalCount: allStudents.length });
 
-      // If the history tab happens to be visible, refresh it too
       if (activeTab === 'history') renderPairingMatrix();
     }
 
