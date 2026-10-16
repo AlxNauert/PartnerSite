@@ -266,18 +266,184 @@
       min-width: 0;
     }
 
+    /* ===== Radio Pills (Grouping Mode) ===== */
     .radio-group {
       display: flex;
-      gap: 1rem;
-      margin-bottom: 0.5rem;
+      gap: 0.55rem;
+      flex-wrap: wrap;
     }
+
     .radio-label {
-      display: flex;
+      position: relative;
+      display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-      font-weight: 600;
+      gap: 0.55rem;
+      padding: 0.55rem 0.95rem 0.55rem 0.75rem;
+      border: 2px solid var(--border);
+      border-radius: 30px;
+      background: var(--input-bg);
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.7px;
+      text-transform: uppercase;
       cursor: pointer;
+      user-select: none;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .radio-label input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      width: 0;
+      height: 0;
+      margin: 0;
+    }
+
+    /* Custom dot indicator */
+    .radio-label::before {
+      content: "";
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+    }
+
+    .radio-label:hover {
       color: var(--text);
+      border-color: var(--secondary);
+      box-shadow: 0 0 10px rgba(1, 205, 254, 0.3);
+    }
+
+    .radio-label:has(input:checked) {
+      color: var(--primary);
+      border-color: var(--primary);
+      background: linear-gradient(135deg, rgba(255, 113, 206, 0.15), rgba(185, 103, 255, 0.15));
+      box-shadow:
+        0 0 14px rgba(255, 113, 206, 0.5),
+        inset 0 0 10px rgba(255, 113, 206, 0.15);
+      text-shadow: 0 0 6px rgba(255, 113, 206, 0.6);
+    }
+
+    .radio-label:has(input:checked)::before {
+      background: var(--primary);
+      border-color: var(--primary);
+      box-shadow: 0 0 8px var(--primary);
+    }
+
+    .radio-label:focus-within {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* ===== Toggle Switch Checkbox ===== */
+    .checkbox-label {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.55rem 1rem 0.55rem 0.7rem;
+      border: 2px solid var(--border);
+      border-radius: 30px;
+      background: var(--input-bg);
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.7px;
+      text-transform: uppercase;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      width: 0;
+      height: 0;
+      margin: 0;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      border-radius: 22px;
+      background: rgba(0, 0, 0, 0.28);
+      border: 2px solid var(--border);
+      flex-shrink: 0;
+      transition: all 0.25s ease;
+    }
+
+    [data-theme="light"] .toggle-switch {
+      background: rgba(0, 0, 0, 0.08);
+    }
+
+    .toggle-switch::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      transform: translateY(-50%);
+      transition: all 0.25s ease;
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+    }
+
+    .checkbox-label:hover {
+      color: var(--text);
+      border-color: var(--secondary);
+      box-shadow: 0 0 10px rgba(1, 205, 254, 0.3);
+    }
+
+    .checkbox-label:has(input:checked) {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: linear-gradient(135deg, rgba(5, 255, 161, 0.12), rgba(1, 205, 254, 0.12));
+      box-shadow:
+        0 0 14px rgba(5, 255, 161, 0.45),
+        inset 0 0 10px rgba(5, 255, 161, 0.15);
+      text-shadow: 0 0 6px rgba(5, 255, 161, 0.5);
+    }
+
+    .checkbox-label:has(input:checked) .toggle-switch {
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow:
+        0 0 12px var(--accent),
+        inset 0 0 6px rgba(0, 0, 0, 0.18);
+    }
+
+    .checkbox-label:has(input:checked) .toggle-switch::after {
+      left: calc(100% - 16px);
+      background: var(--bg);
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.35);
+    }
+
+    .checkbox-label:focus-within {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .checkbox-hint {
+      display: block;
+      margin-top: 0.45rem;
+      margin-left: 0.15rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.3px;
+      line-height: 1.35;
     }
 
     .btn {
@@ -349,7 +515,7 @@
     .group-preview .preview-warn { color: var(--danger); font-weight: 700; }
     .group-preview .preview-icon { margin-right: 0.35rem; }
 
-    /* ===== Roster Manager (always visible) ===== */
+    /* ===== Roster Manager ===== */
     .roster-panel {
       background: var(--input-bg);
       border: 1px solid var(--border);
@@ -457,9 +623,7 @@
     }
     [data-theme="light"] .student-row { background: rgba(0, 0, 0, 0.03); }
 
-    .student-row.excluded {
-      opacity: 0.45;
-    }
+    .student-row.excluded { opacity: 0.45; }
     .student-row.excluded .row-name-input {
       text-decoration: line-through;
       text-decoration-thickness: 2px;
@@ -486,9 +650,7 @@
       outline: none;
       transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
     }
-    .row-name-input:hover {
-      border-color: var(--border);
-    }
+    .row-name-input:hover { border-color: var(--border); }
     .row-name-input:focus {
       background: var(--input-bg);
       border-color: var(--accent);
@@ -853,6 +1015,8 @@
       header h1 { letter-spacing: 0; }
       .row-toggle { min-width: 60px; padding: 0.15rem 0.45rem; }
       .pairing-matrix th { font-size: 0.65rem; }
+      .radio-label { font-size: 0.8rem; padding: 0.5rem 0.85rem 0.5rem 0.65rem; }
+      .checkbox-label { font-size: 0.8rem; padding: 0.5rem 0.85rem 0.5rem 0.65rem; gap: 0.55rem; }
     }
   </style>
 </head>
@@ -893,7 +1057,7 @@
 
           <div class="divider"></div>
 
-          <!-- Roster Manager (always visible, editable) -->
+          <!-- Roster Manager -->
           <div class="form-group">
             <label>Roster Manager:</label>
             <div class="roster-panel">
@@ -917,7 +1081,7 @@
 
           <div class="divider"></div>
 
-          <!-- Advanced: bulk text input (collapsible) -->
+          <!-- Bulk editor -->
           <div class="form-group">
             <label for="studentList">Bulk Edit (comma or newline separated):</label>
             <textarea id="studentList" placeholder="Liam, Olivia, Noah, Emma, Oliver, Charlotte&#10;James, Amelia, Elijah, Sophia" oninput="onStudentInput()"></textarea>
@@ -929,14 +1093,17 @@
 
           <div class="divider"></div>
 
+          <!-- Grouping Mode (radio pills) -->
           <div class="form-group">
             <label>Grouping Mode:</label>
             <div class="radio-group">
               <label class="radio-label">
-                <input type="radio" name="mode" value="numGroups" checked onchange="toggleMode()"> Total Groups
+                <input type="radio" name="mode" value="numGroups" checked onchange="toggleMode()">
+                <span>Total Groups</span>
               </label>
               <label class="radio-label">
-                <input type="radio" name="mode" value="groupSize" onchange="toggleMode()"> Group Size
+                <input type="radio" name="mode" value="groupSize" onchange="toggleMode()">
+                <span>Group Size</span>
               </label>
             </div>
           </div>
@@ -944,6 +1111,18 @@
           <div class="form-group">
             <label id="numberLabel" for="numberInput">Number of Groups:</label>
             <input type="number" id="numberInput" min="1" value="2">
+          </div>
+
+          <!-- Avoid Repeat Pairings (toggle checkbox) -->
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="avoidRepeats">
+              <span class="toggle-switch"></span>
+              <span>Avoid Repeat Pairings</span>
+            </label>
+            <span class="checkbox-hint">
+              Biases the shuffle toward students who haven't been grouped together before. Uses pairing history for the current roster.
+            </span>
           </div>
 
           <button class="btn" onclick="generateGroups()" type="button">⚡ Generate Groups</button>
@@ -1058,7 +1237,6 @@
     function syncRosterState(students) {
       const studentSet = new Set(students);
 
-      // Drop exclusions for students no longer in the roster
       const newExcluded = new Set();
       excludedStudents.forEach(name => {
         if (studentSet.has(name)) newExcluded.add(name);
@@ -1153,7 +1331,7 @@
     }
 
     // ============================================================
-    // ROSTER MANAGER (always visible, inline editable)
+    // ROSTER MANAGER
     // ============================================================
     function updateActiveRosterLabel() {
       const label = document.getElementById('activeRosterLabel');
@@ -1201,13 +1379,9 @@
       }).join('');
     }
 
-    // ============================================================
-    // ROSTER MANAGER EVENT DELEGATION
-    // ============================================================
     document.addEventListener('DOMContentLoaded', () => {
       const container = document.getElementById('studentManagerContainer');
 
-      // Button clicks (include/exclude toggle + delete)
       container.addEventListener('click', (event) => {
         const button = event.target.closest('[data-action]');
         if (!button) return;
@@ -1221,21 +1395,18 @@
         else if (action === 'delete-student') deleteStudentByIndex(index);
       });
 
-      // Live typing in name input → update color dot only (no re-render, keeps focus)
       container.addEventListener('input', (event) => {
         const input = event.target.closest('.row-name-input');
         if (!input) return;
         handleNameLiveUpdate(input);
       });
 
-      // Commit (blur or Enter) → update the underlying data
       container.addEventListener('change', (event) => {
         const input = event.target.closest('.row-name-input');
         if (!input) return;
         handleNameCommit(input);
       });
 
-      // Pressing Enter should commit + blur
       container.addEventListener('keydown', (event) => {
         if (event.key === 'Enter' && event.target.classList.contains('row-name-input')) {
           event.preventDefault();
@@ -1243,7 +1414,6 @@
         }
       });
 
-      // Preview inputs
       document.getElementById('numberInput').addEventListener('input', updateGroupPreview);
       document.querySelectorAll('input[name="mode"]').forEach(radio => {
         radio.addEventListener('change', updateGroupPreview);
@@ -1279,32 +1449,26 @@
 
       const newName = inputEl.value.trim();
 
-      // Empty name not allowed — revert
       if (!newName) {
         inputEl.value = oldName;
         return;
       }
 
-      // No change — normalize input value just in case (e.g. trailing spaces)
       if (newName === oldName) {
         inputEl.value = newName;
         return;
       }
 
-      // Update the underlying roster
       students[index] = newName;
       document.getElementById('studentList').value = students.join(', ');
 
-      // Transfer exclusion state to the new name
       if (excludedStudents.has(oldName)) {
         excludedStudents.delete(oldName);
         excludedStudents.add(newName);
       }
 
-      // Migrate pairing history so old name doesn't linger as a ghost student
       migratePairingHistory(getHistoryScopeName(), oldName, newName);
 
-      // Normalize input display
       inputEl.value = newName;
 
       updateGroupPreview();
@@ -1331,9 +1495,6 @@
 
       students.splice(index, 1);
       document.getElementById('studentList').value = students.join(', ');
-
-      // Remove from exclusions (but keep pairing history — it's still useful
-      // and the student may be re-added later)
       excludedStudents.delete(student);
 
       renderStudentManager();
@@ -1344,7 +1505,6 @@
     function addStudent() {
       const students = parseStudentNames(document.getElementById('studentList').value);
 
-      // Generate a unique placeholder name
       let placeholder = 'New Student';
       if (students.includes(placeholder)) {
         let i = 2;
@@ -1358,7 +1518,6 @@
       renderStudentManager();
       updateGroupPreview();
 
-      // Focus and select the new row's input so the user can just type
       requestAnimationFrame(() => {
         const rows = document.querySelectorAll('#studentManagerContainer .student-row');
         const lastRow = rows[rows.length - 1];
@@ -1367,7 +1526,6 @@
         if (input) {
           input.focus();
           input.select();
-          // Scroll into view within the roster panel
           input.scrollIntoView({ block: 'nearest' });
         }
       });
@@ -1495,7 +1653,6 @@
         document.getElementById('studentList').value = students.join(', ');
         syncRosterState(students);
       } else {
-        // Deselected → reset exclusions for the scratch roster
         excludedStudents = new Set();
         renderStudentManager();
         updateGroupPreview();
@@ -1582,7 +1739,7 @@
     renderClassDropdown();
 
     // ============================================================
-    // PAIRING HISTORY (persistence + recording + rename migration)
+    // PAIRING HISTORY
     // ============================================================
     const PAIR_SEP = '\x1f';
 
@@ -1644,7 +1801,7 @@
         if (a === oldName) { a = newName; changed = true; }
         if (b === oldName) { b = newName; changed = true; }
 
-        if (a === b) return; // self-pair — drop
+        if (a === b) return;
 
         const newKey = a < b ? a + PAIR_SEP + b : b + PAIR_SEP + a;
         newPairs[newKey] = (newPairs[newKey] || 0) + entry.pairs[key];
@@ -1809,6 +1966,57 @@
       return arr;
     }
 
+    /**
+     * Greedy pairing-avoidance shuffle.
+     * Places each student (in random order) into the group that minimizes
+     * their total past-pairing count with that group's members, while
+     * respecting exact target group sizes.
+     */
+    function generateGroupsAvoidingRepeats(students, numGroups, pairCounts) {
+      const groups = Array.from({ length: numGroups }, () => []);
+      const total = students.length;
+      const baseSize = Math.floor(total / numGroups);
+      const extra = total % numGroups;
+      const maxSizes = Array.from({ length: numGroups }, (_, i) => baseSize + (i < extra ? 1 : 0));
+
+      const shuffled = shuffle(students);
+
+      shuffled.forEach(student => {
+        let bestGroupIdx = -1;
+        let bestCost = Infinity;
+
+        for (let g = 0; g < numGroups; g++) {
+          if (groups[g].length >= maxSizes[g]) continue;
+
+          let cost = 0;
+          for (const member of groups[g]) {
+            cost += pairCounts[pairKey(student, member)] || 0;
+          }
+          // Tiny preference for smaller groups — breaks ties toward balance
+          cost += groups[g].length * 0.001;
+
+          if (cost < bestCost) {
+            bestCost = cost;
+            bestGroupIdx = g;
+          }
+        }
+
+        // Safety fallback (shouldn't trigger, but keeps the algorithm robust)
+        if (bestGroupIdx === -1) {
+          for (let g = 0; g < numGroups; g++) {
+            if (groups[g].length < maxSizes[g]) {
+              bestGroupIdx = g;
+              break;
+            }
+          }
+        }
+
+        groups[bestGroupIdx].push(student);
+      });
+
+      return groups;
+    }
+
     function generateGroups() {
       const allStudents = parseStudentNames(document.getElementById('studentList').value);
 
@@ -1833,21 +2041,26 @@
         return;
       }
 
-      const groups = [];
-      let numGroups;
+      const avoidRepeats = document.getElementById('avoidRepeats').checked;
 
+      let numGroups;
       if (mode === 'groupSize') {
         numGroups = Math.max(1, Math.ceil(students.length / targetVal));
       } else {
         numGroups = Math.min(targetVal, students.length);
       }
 
-      for (let i = 0; i < numGroups; i++) groups.push([]);
-
-      const shuffled = shuffle(students);
-      shuffled.forEach((student, index) => {
-        groups[index % numGroups].push(student);
-      });
+      let groups;
+      if (avoidRepeats) {
+        const pairCounts = (getPairingHistory()[getHistoryScopeName()] || {}).pairs || {};
+        groups = generateGroupsAvoidingRepeats(students, numGroups, pairCounts);
+      } else {
+        groups = Array.from({ length: numGroups }, () => []);
+        const shuffled = shuffle(students);
+        shuffled.forEach((student, index) => {
+          groups[index % numGroups].push(student);
+        });
+      }
 
       // Record this generation into the pairing history
       recordPairings(getHistoryScopeName(), groups);
